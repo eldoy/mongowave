@@ -72,6 +72,12 @@ const result = await db('project').get({ name: 'bye' })
 // Returns the count of the matching query
 // Takes 2 arguments: query, options
 const result = await db('project').count({ name: 'bye' })
+
+/* Use the mongodb client base directly */
+db.base.collection('project').findOne({ _id: insert._id })
+
+/* The mongodb client */
+db.client
 ```
 
 MIT Licensed. Enjoy!

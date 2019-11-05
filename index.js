@@ -22,10 +22,11 @@ module.exports = async function({ url = OPT.url, connection = OPT.connection, na
       await new Promise(r => setTimeout(r, 50))
     }
   }
-  const database = client.db(name)
 
-  return function(model) {
-    const collection = database.collection(model)
+  const base = client.db(name)
+
+  function db(model) {
+    const collection = base.collection(model)
 
     const getCursor = function(query, options) {
       let cursor = collection.find(query)
@@ -58,10 +59,15 @@ module.exports = async function({ url = OPT.url, connection = OPT.connection, na
         const result = await collection.updateMany(query, { $set: values })
         return { n: result.modifiedCount }
       },
-      delete: async function(query = {}, values = {}) {
+      delete: async function(query = {}) {
         const result = await collection.deleteMany(query)
         return { n: result.deletedCount }
       }
     }
   }
+
+  db.client = client
+  db.base = base
+
+  return db
 }
