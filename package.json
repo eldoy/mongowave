@@ -1,7 +1,7 @@
 {
   "name": "wavedb-mongo",
   "version": "0.0.1",
-  "description": "WaveDB mongodb client",
+  "description": "WaveDB MongoDB client",
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll --runInBand"
@@ -9,6 +9,7 @@
   "author": "Vidar Eldøy",
   "license": "MIT",
   "dependencies": {
+    "cuid": "^2.1.6",
     "mongodb": "^3.3.3"
   },
   "devDependencies": {

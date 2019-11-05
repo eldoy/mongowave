@@ -6,10 +6,10 @@ describe('Count', () => {
   beforeEach(clear)
 
   it('should return count for existing documents', async () => {
-    const insert = await $db('project/insert')({ name: 'hello' })
+    const insert = await $db('project').create({ name: 'hello' })
     expect(insert).toBeDefined()
-    await $db('project/insert')({ name: 'hello' })
-    let count = await $db('project/count')()
+    await $db('project').create({ name: 'hello' })
+    let count = await $db('project').count()
     expect(count).toEqual(2)
   })
 })

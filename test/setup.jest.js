@@ -6,9 +6,9 @@ const clear = async function(models = ['project'], db) {
     db = await connection()
   }
   for (const model of models) {
-    const docs = await db(`${model}/find`)()
+    const docs = await db(model).find()
     for (const d of docs) {
-      await db(`${model}/remove`)({ _id: d._id })
+      await db(model).delete({ _id: d._id })
     }
   }
 }

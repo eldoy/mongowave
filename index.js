@@ -1,8 +1,9 @@
-const { MongoClient, ObjectId } = require('mongodb')
+const { MongoClient } = require('mongodb')
+const cuid = require('cuid')
 
 const OPT = {
   url: 'mongodb://localhost:27017',
-  name: 'mongopath',
+  name: 'wdb',
   connection: {
     poolSize: 100,
     useNewUrlParser: true,
@@ -23,54 +24,44 @@ module.exports = async function({ url = OPT.url, connection = OPT.connection, na
   }
   const database = client.db(name)
 
-  return function(path) {
-    const [model, command] = path.split('/')
+  return function(model) {
     const collection = database.collection(model)
 
-    return function(...args) {
-      const [query = {}, values = {}, options = {}] = (function(){
-        switch(command) {
-          case 'insert': return [undefined, args[0], args[1]]
-          case 'update': return args
-          default: return [args[0], undefined, args[1]]
+    const getCursor = function(query, options) {
+      let cursor = collection.find(query)
+      cursor.fields = cursor.project
+      for (const option in options) {
+        if (DBOPTIONS.includes(option)) {
+          cursor = cursor[option](options[option])
         }
-      }())
-
-      const getCursor = function() {
-        let cursor = collection.find(query)
-        cursor.fields = cursor.project
-        for (const option in options) {
-          if (DBOPTIONS.includes(option)) {
-            cursor = cursor[option](options[option])
-          }
-        }
-        return cursor
       }
+      return cursor
+    }
 
-      return (async function() {
-        let result
-        switch(command) {
-          case 'find':
-            return await getCursor().toArray()
-          case 'get':
-            options.limit = 1
-            return (await getCursor().toArray())[0] || null
-          case 'count':
-            return await getCursor().count()
-          case 'insert':
-            values._id = String(values._id || ObjectId())
-            result = await collection.insertOne(values)
-            return { _id: result.insertedId }
-          case 'update':
-            result = await collection.updateMany(query, { $set: values })
-            return { n: result.modifiedCount }
-          case 'remove':
-            result = await collection.deleteMany(query)
-            return { n: result.deletedCount }
-          default:
-            throw new Error('command not supported')
-        }
-      }())
+    return {
+      find: async function(query = {}, options = {}) {
+        return await getCursor(query, options).toArray()
+      },
+      get: async function(query = {}, options = {}) {
+        options.limit = 1
+        return (await getCursor(query, options).toArray())[0] || null
+      },
+      count: async function(query = {}, options = {}) {
+        return await getCursor(query, options).count()
+      },
+      create: async function(values = {}) {
+        values._id = String(values._id || cuid())
+        const result = await collection.insertOne(values)
+        return { _id: result.insertedId }
+      },
+      update: async function(query = {}, values = {}) {
+        const result = await collection.updateMany(query, { $set: values })
+        return { n: result.modifiedCount }
+      },
+      delete: async function(query = {}, values = {}) {
+        const result = await collection.deleteMany(query)
+        return { n: result.deletedCount }
+      }
     }
   }
 }
