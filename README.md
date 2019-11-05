@@ -4,11 +4,6 @@ Javascript document database based on MongoDB.
 
 This library is meant for sites with high traffic demands running on multiple machines. It has the exact same syntax as [WaveDB](https://github.com/fugroup/wavedb) and is a drop-in replacement for apps that need to scale beyond a local database.
 
-**Differences from pure MongoDB:**
-* Uses `id` instead of `_id`
-* Uses `cuid` instead of normal mongodb id
-* Always updates and deletes all matches
-
 ### Install
 `npm i wavedb-mongo`
 
