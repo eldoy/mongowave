@@ -1,7 +1,7 @@
 {
-  "name": "wavedb-mongo",
+  "name": "mongowave",
   "version": "0.0.1",
-  "description": "WaveDB MongoDB client",
+  "description": "Mongowave MongoDB client",
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll --runInBand"

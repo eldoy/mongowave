@@ -1,19 +1,19 @@
-# WaveDB MongoDB Client
+# Mongowave MongoDB Client
 
 Javascript document database based on MongoDB.
 
-This library is meant for sites with high traffic demands running on multiple machines. It has the exact same syntax as [WaveDB](https://github.com/fugroup/wavedb) and is a drop-in replacement for apps that need to scale beyond a local database.
+This library is meant for sites with high traffic demands running on multiple machines.
 
 ### Install
-`npm i wavedb-mongo`
+`npm i mongowave`
 
 ### Usage
 ```javascript
 /* Connect to database */
-const connection = require('wavedb-mongo')
+const connection = require('mongowave')
 
 /* Default options */
-const db = await connection({ url: 'mongodb://localhost:27017', name: 'wdb' })
+const db = await connection({ url: 'mongodb://localhost:27017', name: 'mongowave' })
 
 /* Insert document */
 // Returns the inserted id: { id: '507f191e810c19729de860ea' }
