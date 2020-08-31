@@ -3,7 +3,7 @@ let $db
 
 describe('Get', () => {
   beforeAll(async () => $db = await connection())
-  beforeEach(clear)
+  beforeEach(async () => await clear())
 
   // Test that we can get a document
   it('should get a document', async () => {

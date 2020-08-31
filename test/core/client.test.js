@@ -3,7 +3,7 @@ let $db
 
 describe('Client', () => {
   beforeAll(async () => $db = await connection())
-  beforeEach(clear)
+  beforeEach(async () => await clear())
 
   it('should return the count via the raw client', async () => {
     const insert = await $db('project').create({ name: 'hello' })

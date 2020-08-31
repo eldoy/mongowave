@@ -3,7 +3,7 @@ let $db
 
 describe('Count', () => {
   beforeAll(async () => $db = await connection())
-  beforeEach(clear)
+  beforeEach(async () => await clear())
 
   it('should return count for existing documents', async () => {
     const insert = await $db('project').create({ name: 'hello' })

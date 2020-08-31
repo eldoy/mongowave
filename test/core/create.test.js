@@ -3,7 +3,7 @@ let $db
 
 describe('Create', () => {
   beforeAll(async () => $db = await connection())
-  beforeEach(clear)
+  beforeEach(async () => await clear())
 
   // Test that we can create a document
   it('should insert a document', async () => {

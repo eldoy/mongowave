@@ -3,7 +3,7 @@ let $db
 
 describe('Update', () => {
   beforeAll(async () => $db = await connection())
-  beforeEach(clear)
+  beforeEach(async () => await clear())
 
   it('should update a document', async () => {
     await $db('project').create({ name: 'hello' })

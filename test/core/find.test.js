@@ -3,7 +3,7 @@ let $db
 
 describe('Find', () => {
   beforeAll(async () => $db = await connection())
-  beforeEach(clear)
+  beforeEach(async () => await clear())
 
   it('should return an empty array with no data in db', async () => {
     const find = await $db('project').find()

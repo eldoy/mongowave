@@ -3,7 +3,7 @@ let $db
 
 describe('Delete', () => {
   beforeAll(async () => $db = await connection())
-  beforeEach(clear)
+  beforeEach(async () => await clear())
 
   it('should delete a document', async () => {
     await $db('project').create({ name: 'hello' })
