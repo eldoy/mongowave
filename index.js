@@ -16,6 +16,16 @@ const DEFAULT_CONFIG = {
 
 const DBOPTIONS = ['fields', 'limit', 'skip', 'sort']
 
+function denullify(obj) {
+  Object.keys(obj).forEach(key => {
+    if (obj[key] && typeof obj[key] === 'object') {
+      denullify(obj[key])
+    } else if (obj[key] == null) {
+      delete obj[key]
+    }
+  })
+}
+
 module.exports = async function(config = {}) {
   config = _.merge({}, DEFAULT_CONFIG, config)
 
@@ -52,14 +62,18 @@ module.exports = async function(config = {}) {
         if (softdelete) {
           query.deleted = null
         }
-        return await getCursor(query, options).toArray()
+        const result = await getCursor(query, options).toArray()
+        denullify(result)
+        return result
       },
       get: async function(query = {}, options = {}) {
         if (softdelete) {
           query.deleted = null
         }
         options.limit = 1
-        return (await getCursor(query, options).toArray())[0] || null
+        const result = await getCursor(query, options).toArray()
+        denullify(result)
+        return result[0] || null
       },
       count: async function(query = {}, options = {}) {
         if (softdelete) {
@@ -68,6 +82,7 @@ module.exports = async function(config = {}) {
         return await getCursor(query, options).count()
       },
       create: async function(values = {}) {
+        denullify(values)
         values._id = String(values._id || cuid())
         if (config.timestamps) {
           const date = new Date()
@@ -78,14 +93,34 @@ module.exports = async function(config = {}) {
         return { _id: result.insertedId }
       },
       update: async function(query = {}, values = {}) {
+        const unset = {}
+        for (const key in values) {
+          if (values[key] == null) {
+            unset[key] = ''
+          }
+        }
+        denullify(values)
+
         if (softdelete) {
           query.deleted = null
         }
         if (config.timestamps) {
           values.updated_at = new Date()
         }
-        const result = await collection.updateMany(query, { $set: values })
-        return { n: result.modifiedCount }
+        const operation = {}
+        if (Object.keys(values).length) {
+          operation.$set = values
+        }
+        if (Object.keys(unset).length) {
+          operation.$unset = unset
+        }
+
+        if (Object.keys(operation).length) {
+          const result = await collection.updateMany(query, operation)
+          return { n: result.modifiedCount }
+        } else {
+          return { n: 0}
+        }
       },
       delete: async function(query = {}) {
         if (softdelete) {
