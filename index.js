@@ -31,6 +31,9 @@ module.exports = async function(config = {}) {
   const base = client.db(config.name)
 
   function db(model, modifiers = {}) {
+    const softdelete = typeof modifiers.softdelete !== 'undefined'
+      ? modifiers.softdelete
+      : config.softdelete
     const collection = base.collection(model)
 
     const getCursor = function(query, options) {
@@ -46,20 +49,20 @@ module.exports = async function(config = {}) {
 
     return {
       find: async function(query = {}, options = {}) {
-        if (config.softdelete && !modifiers.deleted) {
+        if (softdelete) {
           query.deleted = null
         }
         return await getCursor(query, options).toArray()
       },
       get: async function(query = {}, options = {}) {
-        if (config.softdelete && !modifiers.deleted) {
+        if (softdelete) {
           query.deleted = null
         }
         options.limit = 1
         return (await getCursor(query, options).toArray())[0] || null
       },
       count: async function(query = {}, options = {}) {
-        if (config.softdelete && !modifiers.deleted) {
+        if (softdelete) {
           query.deleted = null
         }
         return await getCursor(query, options).count()
@@ -75,7 +78,7 @@ module.exports = async function(config = {}) {
         return { _id: result.insertedId }
       },
       update: async function(query = {}, values = {}) {
-        if (config.softdelete && !modifiers.deleted) {
+        if (softdelete) {
           query.deleted = null
         }
         if (config.timestamps) {
@@ -85,7 +88,7 @@ module.exports = async function(config = {}) {
         return { n: result.modifiedCount }
       },
       delete: async function(query = {}) {
-        if (config.softdelete && !modifiers.deleted) {
+        if (softdelete) {
           const result = await collection.updateMany(query, { $set: { deleted: true, deleted_at: new Date() } })
           return { n: result.modifiedCount }
         }
