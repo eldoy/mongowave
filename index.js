@@ -1,9 +1,11 @@
 const { MongoClient } = require('mongodb')
 const cuid = require('cuid')
+const _ = require('lodash')
 
-const OPT = {
+const DEFAULT_OPTIONS = {
   url: 'mongodb://localhost:27017',
   name: 'wdb',
+  timestamps: false,
   connection: {
     poolSize: 100,
     useNewUrlParser: true,
@@ -13,7 +15,9 @@ const OPT = {
 
 const DBOPTIONS = ['fields', 'limit', 'skip', 'sort']
 
-module.exports = async function({ url = OPT.url, connection = OPT.connection, name = OPT.name } = {}) {
+module.exports = async function(opt = {}) {
+  const { url, name, timestamps, connection } = _.merge({}, DEFAULT_OPTIONS, opt)
+
   let client
   while (!client || !client.isConnected()) {
     try {
@@ -52,10 +56,18 @@ module.exports = async function({ url = OPT.url, connection = OPT.connection, na
       },
       create: async function(values = {}) {
         values._id = String(values._id || cuid())
+        if (timestamps) {
+          const date = new Date()
+          values.created_at = date
+          values.updated_at = date
+        }
         const result = await collection.insertOne(values)
         return { _id: result.insertedId }
       },
       update: async function(query = {}, values = {}) {
+        if (timestamps) {
+          values.updated_at = new Date()
+        }
         const result = await collection.updateMany(query, { $set: values })
         return { n: result.modifiedCount }
       },
