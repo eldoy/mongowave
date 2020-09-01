@@ -2,10 +2,11 @@ const { MongoClient } = require('mongodb')
 const cuid = require('cuid')
 const _ = require('lodash')
 
-const DEFAULT_OPTIONS = {
+const DEFAULT_CONFIG = {
   url: 'mongodb://localhost:27017',
   name: 'wdb',
   timestamps: false,
+  softdelete: false,
   connection: {
     poolSize: 100,
     useNewUrlParser: true,
@@ -15,21 +16,21 @@ const DEFAULT_OPTIONS = {
 
 const DBOPTIONS = ['fields', 'limit', 'skip', 'sort']
 
-module.exports = async function(opt = {}) {
-  const { url, name, timestamps, connection } = _.merge({}, DEFAULT_OPTIONS, opt)
+module.exports = async function(config = {}) {
+  config = _.merge({}, DEFAULT_CONFIG, config)
 
   let client
   while (!client || !client.isConnected()) {
     try {
-      client = await MongoClient.connect(url, connection)
+      client = await MongoClient.connect(config.url, config.connection)
     } catch (e) {
       await new Promise(r => setTimeout(r, 50))
     }
   }
 
-  const base = client.db(name)
+  const base = client.db(config.name)
 
-  function db(model) {
+  function db(model, modifiers = {}) {
     const collection = base.collection(model)
 
     const getCursor = function(query, options) {
@@ -45,18 +46,27 @@ module.exports = async function(opt = {}) {
 
     return {
       find: async function(query = {}, options = {}) {
+        if (config.softdelete && !modifiers.deleted) {
+          query.deleted = null
+        }
         return await getCursor(query, options).toArray()
       },
       get: async function(query = {}, options = {}) {
+        if (config.softdelete && !modifiers.deleted) {
+          query.deleted = null
+        }
         options.limit = 1
         return (await getCursor(query, options).toArray())[0] || null
       },
       count: async function(query = {}, options = {}) {
+        if (config.softdelete && !modifiers.deleted) {
+          query.deleted = null
+        }
         return await getCursor(query, options).count()
       },
       create: async function(values = {}) {
         values._id = String(values._id || cuid())
-        if (timestamps) {
+        if (config.timestamps) {
           const date = new Date()
           values.created_at = date
           values.updated_at = date
@@ -65,13 +75,20 @@ module.exports = async function(opt = {}) {
         return { _id: result.insertedId }
       },
       update: async function(query = {}, values = {}) {
-        if (timestamps) {
+        if (config.softdelete && !modifiers.deleted) {
+          query.deleted = null
+        }
+        if (config.timestamps) {
           values.updated_at = new Date()
         }
         const result = await collection.updateMany(query, { $set: values })
         return { n: result.modifiedCount }
       },
       delete: async function(query = {}) {
+        if (config.softdelete && !modifiers.deleted) {
+          const result = await collection.updateMany(query, { $set: { deleted: true, deleted_at: new Date() } })
+          return { n: result.modifiedCount }
+        }
         const result = await collection.deleteMany(query)
         return { n: result.deletedCount }
       }

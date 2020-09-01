@@ -1,7 +1,7 @@
 const { clear, connection } = require('../setup.jest.js')
 let $db
 
-describe('Get', () => {
+describe('Timestamps', () => {
   beforeAll(async () => $db = await connection({ timestamps: true }))
   beforeEach(async () => await clear())
 
