@@ -7,6 +7,7 @@ const DEFAULT_CONFIG = {
   name: 'wdb',
   timestamps: false,
   softdelete: false,
+  fakeid: false,
   connection: {
     poolSize: 100,
     useNewUrlParser: true,
@@ -26,6 +27,20 @@ function denullify(obj) {
   })
 }
 
+function flipid(obj, out = false) {
+  Object.keys(obj).forEach(key => {
+    if (obj[key] && typeof obj[key] === 'object') {
+      flipid(obj[key], out)
+    } else if (key === '_id' && out) {
+      obj.id = obj._id
+      delete obj._id
+    } else if (key === 'id' && !out) {
+      obj._id = obj.id
+      delete obj.id
+    }
+  })
+}
+
 module.exports = async function(config = {}) {
   config = _.merge({}, DEFAULT_CONFIG, config)
 
@@ -41,9 +56,7 @@ module.exports = async function(config = {}) {
   const base = client.db(config.name)
 
   function db(model, modifiers = {}) {
-    const softdelete = typeof modifiers.softdelete !== 'undefined'
-      ? modifiers.softdelete
-      : config.softdelete
+    const { softdelete, fakeid } = { ...config, ...modifiers }
     const collection = base.collection(model)
 
     const getCursor = function(query, options) {
@@ -59,23 +72,38 @@ module.exports = async function(config = {}) {
 
     return {
       find: async function(query = {}, options = {}) {
+        if (fakeid) {
+          flipid(query)
+        }
         if (softdelete) {
           query.deleted = null
         }
         const result = await getCursor(query, options).toArray()
         denullify(result)
+        if (fakeid) {
+          flipid(result, true)
+        }
         return result
       },
       get: async function(query = {}, options = {}) {
+        if (fakeid) {
+          flipid(query)
+        }
         if (softdelete) {
           query.deleted = null
         }
         options.limit = 1
         const result = await getCursor(query, options).toArray()
         denullify(result)
+        if (fakeid) {
+          flipid(result, true)
+        }
         return result[0] || null
       },
       count: async function(query = {}, options = {}) {
+        if (fakeid) {
+          flipid(query)
+        }
         if (softdelete) {
           query.deleted = null
         }
@@ -83,14 +111,13 @@ module.exports = async function(config = {}) {
       },
       create: async function(values = {}) {
         denullify(values)
-        values._id = String(values._id || cuid())
+
+        values._id = String(values._id || (fakeid ? values.id : false) || cuid())
         if (config.timestamps) {
-          const date = new Date()
-          values.created_at = date
-          values.updated_at = date
+          values.created_at = values.updated_at = new Date()
         }
         const result = await collection.insertOne(values)
-        return { _id: result.insertedId }
+        return { [fakeid ? 'id' : '_id']: result.insertedId }
       },
       update: async function(query = {}, values = {}) {
         const unset = {}
@@ -106,6 +133,9 @@ module.exports = async function(config = {}) {
         }
         if (config.timestamps) {
           values.updated_at = new Date()
+        }
+        if (fakeid) {
+          flipid(query)
         }
         const operation = {}
         if (Object.keys(values).length) {
@@ -123,6 +153,9 @@ module.exports = async function(config = {}) {
         }
       },
       delete: async function(query = {}) {
+        if (fakeid) {
+          flipid(query)
+        }
         if (softdelete) {
           const result = await collection.updateMany(query, { $set: { deleted: true, deleted_at: new Date() } })
           return { n: result.modifiedCount }
