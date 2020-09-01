@@ -13,7 +13,22 @@ This library is meant for sites with high traffic demands running on multiple ma
 const connection = require('mongowave')
 
 /* Default options */
-const db = await connection({ url: 'mongodb://localhost:27017', name: 'mongowave' })
+const db = await connection({
+  // URL of database server
+  url: 'mongodb://localhost:27017',
+
+  // Name of database
+  name: 'mongowave',
+
+  // Automatically set created_at and updated_at fields on change
+  timestamps: false,
+
+  // Mark as deleted with deleted_at time instead of actually deleting
+  softdelete: false,
+
+  // Use 'id' instead of '_id' as default identifier
+  fakeid: false
+})
 
 /* Insert document */
 // Returns the inserted id: { id: '507f191e810c19729de860ea' }
