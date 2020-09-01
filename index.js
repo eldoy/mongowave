@@ -29,14 +29,15 @@ function denullify(obj) {
 
 function flipid(obj, out = false) {
   Object.keys(obj).forEach(key => {
-    if (obj[key] && typeof obj[key] === 'object') {
-      flipid(obj[key], out)
-    } else if (key === '_id' && out) {
+    if (key === '_id' && out) {
       obj.id = obj._id
       delete obj._id
     } else if (key === 'id' && !out) {
       obj._id = obj.id
       delete obj.id
+    }
+    if (obj[key] && typeof obj[key] === 'object') {
+      flipid(obj[key], out)
     }
   })
 }
@@ -137,6 +138,7 @@ module.exports = async function(config = {}) {
         if (fakeid) {
           flipid(query)
         }
+
         const operation = {}
         if (Object.keys(values).length) {
           operation.$set = values

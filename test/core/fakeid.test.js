@@ -53,4 +53,11 @@ describe('FakeID', () => {
     const count = await $db('project').count({ id: create.id })
     expect(count).toEqual(1)
   })
+
+  it('should count with id and $in', async () => {
+    const create = await $db('project').create({ name: 'hello' })
+    expect(create.id).toBeDefined()
+    const count = await $db('project').count({ id: { $in: [create.id] }})
+    expect(count).toEqual(1)
+  })
 })
