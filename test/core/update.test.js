@@ -35,4 +35,25 @@ describe('Update', () => {
     expect(find[0].name).toEqual('bye')
     expect(find[1].name).toEqual('bye')
   })
+
+  it('should set and unset', async () => {
+    await $db('project').create({ name: 'hello' })
+    let update = await $db('project').update({ name: 'hello' }, { name: 'bye' })
+    expect(update.n).toBe(1)
+    let first = await $db('project').get()
+    expect(first.name).toEqual('bye')
+
+    update = await $db('project').update({ name: 'bye' }, { name: null })
+    expect(update.n).toBe(1)
+    first = await $db('project').get()
+    expect(first.name).toBeUndefined()
+  })
+
+  it('should use db field update operators', async () => {
+    await $db('project').create({ name: 'hello' })
+    let update = await $db('project').update({ name: 'hello' }, { $inc: { 'counter': 1 } })
+    expect(update.n).toBe(1)
+    let first = await $db('project').get()
+    expect(first.counter).toEqual(1)
+  })
 })
