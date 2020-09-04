@@ -11,7 +11,7 @@
   "dependencies": {
     "cuid": "^2.1.8",
     "lodash": "^4.17.20",
-    "mongodb": "^3.6.0"
+    "mongodb": "^3.6.1"
   },
   "devDependencies": {
     "jest": "^26.4.2"
