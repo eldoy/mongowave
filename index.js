@@ -109,6 +109,10 @@ module.exports = async function(config = {}) {
       },
 
       update: async function(query = {}, values = {}) {
+        if (softdelete) query.deleted = null
+        if (config.timestamps) values.updated_at = new Date()
+        if (fakeid) flipid(query)
+
         const operation = {}
         for (const key in values) {
           if (DB_FIELD_UPDATE_OPERATORS.includes(key)) {
@@ -123,11 +127,7 @@ module.exports = async function(config = {}) {
           }
         }
 
-        if (softdelete) query.deleted = null
-        if (config.timestamps) values.updated_at = new Date()
-        if (fakeid) flipid(query)
         if (!Object.keys(operation).length) return { n: 0}
-
         const result = await collection.updateMany(query, operation)
         return { n: result.modifiedCount }
       },
