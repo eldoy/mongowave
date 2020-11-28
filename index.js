@@ -101,11 +101,18 @@ module.exports = async function(config = {}) {
       },
 
       create: async function(values = {}) {
+        const wasArray = Array.isArray(values)
         denullify(values)
-        values._id = String(values._id || (fakeid ? values.id : false) || cuid())
-        if (config.timestamps) values.created_at = values.updated_at = new Date()
-        const result = await collection.insertOne(values)
-        return { [fakeid ? 'id' : '_id']: result.insertedId }
+        if (!wasArray) values = [values]
+        for (const val of values) {
+          val._id = String(val._id || fakeid && val.id || cuid())
+          if (config.timestamps) val.created_at = val.updated_at = new Date()
+        }
+        const result = await collection.insertMany(values)
+        const ids = Object.values(result.insertedIds)
+        return wasArray
+          ? { ids, n: result.insertedCount }
+          : { [fakeid ? 'id' : '_id']: ids[0] }
       },
 
       update: async function(query = {}, values = {}) {
