@@ -32,8 +32,14 @@ const db = await connection({
 
 /* Insert document */
 // Returns the inserted id: { id: '507f191e810c19729de860ea' }
-// Takes only 1 argument: query
+// Takes only 1 argument: values
 const result = await db('project').create({ name: 'hello' })
+
+/* Insert multiple documents */
+// Returns the the inserted count and the inserted ids:
+// { n: 2, ids: ['507f191e810c19729de860ea', '607f191e810c19729de860eb'] }
+// Takes only 1 argument: values, must be array of objects
+const result = await db('project').create([{ name: 'hello' }, { name: 'bye' }])
 
 /* Update document (updates multiple if query matches) */
 // Returns the number of updated documents: { n: 1 }
