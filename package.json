@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "cuid": "^2.1.8",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "mongodb": "^3.6.4"
   },
   "devDependencies": {
