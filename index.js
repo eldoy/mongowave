@@ -153,6 +153,9 @@ module.exports = async function(config = {}) {
 
   db.client = client
   db.base = base
+  db.drop = function() {
+    return base.dropDatabase()
+  }
 
   return db
 }

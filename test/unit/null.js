@@ -1,7 +1,7 @@
 const { clear, connection } = require('../setup.jest.js')
 let $db
 
-describe('Nullify', () => {
+describe('Null', () => {
   beforeAll(async () => $db = await connection())
   beforeEach(async () => await clear())
 
