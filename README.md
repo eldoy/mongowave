@@ -18,16 +18,10 @@ const db = await connection({
   url: 'mongodb://localhost:27017',
 
   // Name of database
-  name: 'mongowave',
+  name: 'wdb',
 
   // Automatically set created_at and updated_at fields on change
-  timestamps: false,
-
-  // Mark as deleted with deleted_at time instead of actually deleting
-  softdelete: false,
-
-  // Use 'id' instead of '_id' as default identifier
-  fakeid: false
+  timestamps: true
 })
 
 /* Insert document */

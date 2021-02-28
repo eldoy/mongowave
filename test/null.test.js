@@ -15,7 +15,7 @@ describe('Null', () => {
     await db('project').create({ name: 'hello' })
     let first = await db('project').get()
     expect(first.name).toBe('hello')
-    const update = await db('project').update({ _id: first._id }, { name: null })
+    const update = await db('project').update({ _id: first.id }, { name: null })
     first = await db('project').get()
     expect(first.name).toBeUndefined()
   })

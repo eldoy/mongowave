@@ -6,16 +6,16 @@ describe('Client', () => {
   beforeEach(async () => await db.drop())
 
   it('should return the count via the raw client', async () => {
-    const insert = await db('project').create({ name: 'hello' })
-    expect(insert).toBeDefined()
-    const project = await db.client.db('wdb').collection('project').findOne({ _id: insert._id })
-    expect(project._id).toEqual(insert._id)
+    const create = await db('project').create({ name: 'hello' })
+    expect(create).toBeDefined()
+    const project = await db.client.db('wdb').collection('project').findOne({ _id: create.id })
+    expect(project._id).toEqual(create.id)
   })
 
   it('should return the count via the client base collection', async () => {
-    const insert = await db('project').create({ name: 'hello' })
-    expect(insert).toBeDefined()
-    const project = await db.base.collection('project').findOne({ _id: insert._id })
-    expect(project._id).toEqual(insert._id)
+    const create = await db('project').create({ name: 'hello' })
+    expect(create).toBeDefined()
+    const project = await db.base.collection('project').findOne({ _id: create.id })
+    expect(project._id).toEqual(create.id)
   })
 })

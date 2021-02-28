@@ -6,7 +6,6 @@ const DEFAULT_CONFIG = {
   url: 'mongodb://localhost:27017',
   name: 'wdb',
   timestamps: false,
-  fakeid: false,
   connection: {
     poolSize: 100,
     useNewUrlParser: true,
@@ -57,8 +56,7 @@ module.exports = async function(config = {}) {
 
   const base = client.db(config.name)
 
-  function db(model, modifiers = {}) {
-    const { fakeid } = { ...config, ...modifiers }
+  function db(model) {
     const collection = base.collection(model)
 
     const getCursor = function(query, options) {
@@ -75,24 +73,24 @@ module.exports = async function(config = {}) {
     return {
 
       find: async function(query = {}, options = {}) {
-        if (fakeid) flipid(query)
+        flipid(query)
         const result = await getCursor(query, options).toArray()
         denullify(result)
-        if (fakeid) flipid(result, true)
+        flipid(result, true)
         return result
       },
 
       get: async function(query = {}, options = {}) {
-        if (fakeid) flipid(query)
+        flipid(query)
         options.limit = 1
         const result = await getCursor(query, options).toArray()
         denullify(result)
-        if (fakeid) flipid(result, true)
+        flipid(result, true)
         return result[0] || null
       },
 
       count: async function(query = {}, options = {}) {
-        if (fakeid) flipid(query)
+        flipid(query)
         return await getCursor(query, options).count()
       },
 
@@ -101,19 +99,19 @@ module.exports = async function(config = {}) {
         denullify(values)
         if (!wasArray) values = [values]
         for (const val of values) {
-          val._id = String(val._id || fakeid && val.id || cuid())
+          val._id = String(val._id || val.id || cuid())
           if (config.timestamps) val.created_at = val.updated_at = new Date()
         }
         const result = await collection.insertMany(values)
         const ids = Object.values(result.insertedIds)
         return wasArray
           ? { ids, n: result.insertedCount }
-          : { [fakeid ? 'id' : '_id']: ids[0] }
+          : { id: ids[0] }
       },
 
       update: async function(query = {}, values = {}) {
         if (config.timestamps) values.updated_at = new Date()
-        if (fakeid) flipid(query)
+        flipid(query)
 
         const operation = {}
         for (const key in values) {
@@ -135,7 +133,7 @@ module.exports = async function(config = {}) {
       },
 
       delete: async function(query = {}) {
-        if (fakeid) flipid(query)
+        flipid(query)
         const result = await collection.deleteMany(query)
         return { n: result.deletedCount }
       }
