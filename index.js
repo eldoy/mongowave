@@ -5,7 +5,7 @@ const _ = require('lodash')
 const DEFAULT_CONFIG = {
   url: 'mongodb://localhost:27017',
   name: 'wdb',
-  timestamps: false,
+  timestamps: true,
   connection: {
     poolSize: 100,
     useNewUrlParser: true,
@@ -100,7 +100,11 @@ module.exports = async function(config = {}) {
         if (!wasArray) values = [values]
         for (const val of values) {
           val._id = String(val._id || val.id || cuid())
-          if (config.timestamps) val.created_at = val.updated_at = new Date()
+          if (config.timestamps) {
+            const date = new Date()
+            if (!val.created_at) val.created_at = date
+            if (!val.updated_at) val.updated_at = date
+          }
         }
         const result = await collection.insertMany(values)
         const ids = Object.values(result.insertedIds)
@@ -110,7 +114,6 @@ module.exports = async function(config = {}) {
       },
 
       update: async function(query = {}, values = {}) {
-        if (config.timestamps) values.updated_at = new Date()
         flipid(query)
 
         const operation = {}
@@ -128,6 +131,9 @@ module.exports = async function(config = {}) {
         }
 
         if (!Object.keys(operation).length) return { n: 0}
+        if (config.timestamps && operation.$set && !operation.$set.updated_at) {
+          operation.$set.updated_at = new Date()
+        }
         const result = await collection.updateMany(query, operation)
         return { n: result.modifiedCount }
       },
