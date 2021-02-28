@@ -6,7 +6,6 @@ const DEFAULT_CONFIG = {
   url: 'mongodb://localhost:27017',
   name: 'wdb',
   timestamps: false,
-  softdelete: false,
   fakeid: false,
   connection: {
     poolSize: 100,
@@ -59,7 +58,7 @@ module.exports = async function(config = {}) {
   const base = client.db(config.name)
 
   function db(model, modifiers = {}) {
-    const { softdelete, fakeid } = { ...config, ...modifiers }
+    const { fakeid } = { ...config, ...modifiers }
     const collection = base.collection(model)
 
     const getCursor = function(query, options) {
@@ -77,7 +76,6 @@ module.exports = async function(config = {}) {
 
       find: async function(query = {}, options = {}) {
         if (fakeid) flipid(query)
-        if (softdelete) query.deleted = null
         const result = await getCursor(query, options).toArray()
         denullify(result)
         if (fakeid) flipid(result, true)
@@ -86,7 +84,6 @@ module.exports = async function(config = {}) {
 
       get: async function(query = {}, options = {}) {
         if (fakeid) flipid(query)
-        if (softdelete) query.deleted = null
         options.limit = 1
         const result = await getCursor(query, options).toArray()
         denullify(result)
@@ -96,7 +93,6 @@ module.exports = async function(config = {}) {
 
       count: async function(query = {}, options = {}) {
         if (fakeid) flipid(query)
-        if (softdelete) query.deleted = null
         return await getCursor(query, options).count()
       },
 
@@ -116,7 +112,6 @@ module.exports = async function(config = {}) {
       },
 
       update: async function(query = {}, values = {}) {
-        if (softdelete) query.deleted = null
         if (config.timestamps) values.updated_at = new Date()
         if (fakeid) flipid(query)
 
@@ -141,10 +136,6 @@ module.exports = async function(config = {}) {
 
       delete: async function(query = {}) {
         if (fakeid) flipid(query)
-        if (softdelete) {
-          const result = await collection.updateMany(query, { $set: { deleted: true, deleted_at: new Date() } })
-          return { n: result.modifiedCount }
-        }
         const result = await collection.deleteMany(query)
         return { n: result.deletedCount }
       }
