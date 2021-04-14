@@ -84,7 +84,7 @@ const result = await db('project').get({ name: 'bye' })
 const result = await db('project').count({ name: 'bye' })
 
 /* Use the mongodb client base directly */
-db.base.collection('project').findOne({ _id: insert._id })
+db.base.collection('project').findOne({ _id: insert.id })
 
 /* The mongodb client */
 db.client
