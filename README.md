@@ -91,6 +91,9 @@ await db.base.dropDatabase()
 
 /* The mongodb client */
 db.client
+
+/* Close database connection */
+await db.client.close()
 ```
 
 MIT Licensed. Enjoy!
