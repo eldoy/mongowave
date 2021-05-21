@@ -83,8 +83,11 @@ const result = await db('project').get({ name: 'bye' })
 // Takes 2 arguments: query, options
 const result = await db('project').count({ name: 'bye' })
 
-/* Use the mongodb client base directly */
-db.base.collection('project').findOne({ _id: insert.id })
+/* Use the mongodb client database directly */
+await db.base.collection('project').findOne({ _id: insert.id })
+
+/* Drop database */
+await db.base.dropDatabase()
 
 /* The mongodb client */
 db.client
