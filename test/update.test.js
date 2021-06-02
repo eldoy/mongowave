@@ -56,4 +56,12 @@ describe('Update', () => {
     let first = await db('project').get()
     expect(first.counter).toEqual(1)
   })
+
+  it('should not mutate values', async () => {
+    const { id } = await db('project').create({ name: 'hello' })
+    expect(id).toBeDefined()
+    const values = { hello: 1 }
+    await db('project').update({ id }, values)
+    expect(values).toEqual({ hello: 1 })
+  })
 })

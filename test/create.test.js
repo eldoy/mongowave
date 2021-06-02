@@ -31,5 +31,10 @@ describe('Create', () => {
     expect(get.date.constructor === Date).toBe(true)
   })
 
-
+  it('should not mutate values', async () => {
+    const values = { hello: 1 }
+    const create = await db('project').create(values)
+    expect(create.id).toBeDefined()
+    expect(values).toEqual({ hello: 1 })
+  })
 })

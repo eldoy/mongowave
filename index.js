@@ -95,6 +95,7 @@ module.exports = async function(config = {}) {
       },
 
       create: async function(values = {}) {
+        values = _.cloneDeep(values)
         const wasArray = Array.isArray(values)
         denullify(values)
         if (!wasArray) values = [values]
