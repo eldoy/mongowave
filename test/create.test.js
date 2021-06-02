@@ -5,7 +5,6 @@ describe('Create', () => {
   beforeAll(async () => db = await connection())
   beforeEach(async () => await db.drop())
 
-  // Test that we can create a document
   it('should create a document', async () => {
     const create = await db('project').create({ name: 'hello'})
     expect(create.id).toBeDefined()
@@ -13,7 +12,6 @@ describe('Create', () => {
     expect(create.id.length).toBe(25)
   })
 
-  // Test that we can create multiple documents
   it('should create multiple documents', async () => {
     const { n, ids } = await db('project').create([{ name: 'hello'}, { name: 'bye' }])
     expect(n).toBe(2)
@@ -24,7 +22,6 @@ describe('Create', () => {
     expect(ids[1].length).toBe(25)
   })
 
-  // Test that date is saved as a date object
   it('should save a date as a date object', async () => {
     const date = new Date()
     const create = await db('project').create({ date })
@@ -33,4 +30,6 @@ describe('Create', () => {
     expect(typeof get.date).toBe('object')
     expect(get.date.constructor === Date).toBe(true)
   })
+
+
 })

@@ -5,14 +5,12 @@ describe('Get', () => {
   beforeAll(async () => db = await connection())
   beforeEach(async () => await db.drop())
 
-  // Test that we can get a document
   it('should get a document', async () => {
     await db('project').create({ name: 'hello' })
     const first = await db('project').get()
     expect(first.name).toEqual('hello')
   })
 
-  // Test that query with regexp is working
   it('should do find with regexp', async () => {
     const create = await db('project').create({ name: 'hello' })
     expect(create.id).toBeDefined()
