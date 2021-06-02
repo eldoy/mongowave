@@ -107,11 +107,9 @@ module.exports = async function(config = {}) {
             if (!val.updated_at) val.updated_at = date
           }
         }
-        const result = await collection.insertMany(values)
-        const ids = Object.values(result.insertedIds)
-        return wasArray
-          ? { ids, n: result.insertedCount }
-          : { id: ids[0] }
+        await collection.insertMany(values)
+        flipid(values, true)
+        return wasArray ? values : values[0]
       },
 
       update: async function(query = {}, values = {}) {
