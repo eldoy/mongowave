@@ -25,13 +25,17 @@ const db = await connection({
 })
 
 /* Insert document */
-// Returns the inserted id: { id: '507f191e810c19729de860ea' }
+// Returns the full document:
+// { id: '507f191e810c19729de860ea', name: 'hello' }
 // Takes only 1 argument: values
 const result = await db('project').create({ name: 'hello' })
 
 /* Insert multiple documents */
-// Returns the the inserted count and the inserted ids:
-// { n: 2, ids: ['507f191e810c19729de860ea', '607f191e810c19729de860eb'] }
+// Returns the full documents:
+// [
+//   { id: '507f191e810c19729de860ea', name: 'hello' },
+//   { id: '607f191e810c19729de860eb', name: 'bye' }
+// ]
 // Takes only 1 argument: values, must be array of objects
 const result = await db('project').create([{ name: 'hello' }, { name: 'bye' }])
 
@@ -83,17 +87,11 @@ const result = await db('project').get({ name: 'bye' })
 // Takes 2 arguments: query, options
 const result = await db('project').count({ name: 'bye' })
 
-/* Use the mongodb client database directly */
-await db.base.collection('project').findOne({ _id: insert.id })
-
-/* Drop database */
-await db.base.dropDatabase()
+/* Use the mongodb client base directly */
+db.base.collection('project').findOne({ _id: insert.id })
 
 /* The mongodb client */
 db.client
-
-/* Close database connection */
-await db.client.close()
 ```
 
 MIT Licensed. Enjoy!
