@@ -8,11 +8,14 @@ This library is meant for sites with high traffic demands running on multiple ma
 `npm i mongowave`
 
 ### Usage
-```javascript
-/* Connect to database */
-const connection = require('mongowave')
 
-/* Default options */
+Connect to database:
+```js
+const connection = require('mongowave')
+```
+
+Default options:
+```js
 const db = await connection({
   // URL of database server
   url: 'mongodb://localhost:27017',
@@ -23,14 +26,18 @@ const db = await connection({
   // Automatically set created_at and updated_at fields on change
   timestamps: true
 })
+```
 
-/* Insert document */
+Insert document:
+```js
 // Returns the full document:
 // { id: '507f191e810c19729de860ea', name: 'hello' }
 // Takes only 1 argument: values
 const result = await db('project').create({ name: 'hello' })
+```
 
-/* Insert multiple documents */
+Insert multiple documents:
+```js
 // Returns the full documents:
 // [
 //   { id: '507f191e810c19729de860ea', name: 'hello' },
@@ -38,18 +45,24 @@ const result = await db('project').create({ name: 'hello' })
 // ]
 // Takes only 1 argument: values, must be array of objects
 const result = await db('project').create([{ name: 'hello' }, { name: 'bye' }])
+```
 
-/* Update document (updates multiple if query matches) */
+Update document (updates multiple if query matches):
+```js
 // Returns the number of updated documents: { n: 1 }
 // Takes 2 arguments: query, values
 const result = await db('project').update({ id: '507f191e810c19729de860ea' }, { name: 'bye' })
+```
 
-/* Delete document (deletes multiple if query matches) */
+Delete document (deletes multiple if query matches):
+```js
 // Returns the number of deleted documents: { n: 1 }
 // Takes 1 argument: query
 const result = await db('project').delete({ id: '507f191e810c19729de860ea' })
+```
 
-/* Find document */
+Find document:
+```js
 // Returns an array of matching documents
 // Takes 2 arguments: query, options
 
@@ -73,24 +86,31 @@ const result = await db('project').find({}, { fields: { name: false } })
 
 // Find all with 'level' field greater than 5
 const result = await db('project').find({ level: { $gt: 5 }})
+```
 
-// All of the mongodb query operators work:
-// https://docs.mongodb.com/manual/reference/operator/query/
+All of [the mongodb query operators](https://docs.mongodb.com/manual/reference/operator/query/) work.
 
-/* Get document */
+Get document:
+```js
 // Returns the first matching document
 // Takes 2 arguments: query, options
 const result = await db('project').get({ name: 'bye' })
+```
 
-/* Count documents */
+Count documents:
+```js
 // Returns the count of the matching query
 // Takes 2 arguments: query, options
 const result = await db('project').count({ name: 'bye' })
+```
 
-/* Use the mongodb client base directly */
+Use the mongodb client base directly:
+```js
 db.base.collection('project').findOne({ _id: insert.id })
+```
 
-/* The mongodb client */
+The mongodb client:
+```js
 db.client
 ```
 
