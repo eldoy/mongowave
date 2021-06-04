@@ -1,8 +1,14 @@
 # Mongowave MongoDB Client
 
-Javascript document database based on MongoDB.
+Javascript MongoDB database client boasting the following features:
 
-This library is meant for sites with high traffic demands running on multiple machines.
+* Intuitive API
+* Automatic timestamps (created_at, updated_at)
+* Custom string id
+* Using id instead of _id
+* Insert, update and delete multiple by default
+* Returns full object on create
+* Updates with $set by default
 
 ### Install
 `npm i mongowave`
