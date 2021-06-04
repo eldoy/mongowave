@@ -9,6 +9,7 @@ Javascript MongoDB database client boasting the following features:
 * Insert, update and delete multiple by default
 * Returns full object on create
 * Updates with $set by default
+* Retry connection on fail
 
 ### Install
 `npm i mongowave`
