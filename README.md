@@ -61,7 +61,7 @@ Delete document (deletes multiple if query matches):
 const result = await db('project').delete({ id: '507f191e810c19729de860ea' })
 ```
 
-Find document:
+Find documents, all of [the mongodb query operators](https://docs.mongodb.com/manual/reference/operator/query/) work:
 ```js
 // Returns an array of matching documents
 // Takes 2 arguments: query, options
@@ -87,8 +87,6 @@ const result = await db('project').find({}, { fields: { name: false } })
 // Find all with 'level' field greater than 5
 const result = await db('project').find({ level: { $gt: 5 }})
 ```
-
-All of [the mongodb query operators](https://docs.mongodb.com/manual/reference/operator/query/) work.
 
 Get document:
 ```js
