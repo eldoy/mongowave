@@ -27,6 +27,20 @@ function denullify(obj) {
   })
 }
 
+function parseOptions(obj) {
+  for (const key in obj) {
+    if (typeof obj[key] == 'undefined') {
+      delete obj[key]
+    }
+  }
+  if (typeof obj.limit != 'number' || obj.limit < 1) {
+    delete obj.limit
+  }
+  if (typeof obj.skip != 'number') {
+    delete obj.skip
+  }
+}
+
 function flipid(obj, out = false) {
   Object.keys(obj).forEach(key => {
     if (key === '_id' && out) {
@@ -74,6 +88,7 @@ module.exports = async function(config = {}) {
 
       find: async function(query = {}, options = {}) {
         flipid(query)
+        parseOptions(options)
         const result = await getCursor(query, options).toArray()
         denullify(result)
         flipid(result, true)
@@ -82,6 +97,7 @@ module.exports = async function(config = {}) {
 
       get: async function(query = {}, options = {}) {
         flipid(query)
+        parseOptions(options)
         options.limit = 1
         const result = await getCursor(query, options).toArray()
         denullify(result)
@@ -91,6 +107,7 @@ module.exports = async function(config = {}) {
 
       count: async function(query = {}, options = {}) {
         flipid(query)
+        parseOptions(options)
         return await collection.countDocuments(query, options)
       },
 
