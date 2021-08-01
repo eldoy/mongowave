@@ -36,7 +36,7 @@ function parseOptions(obj) {
   if (typeof obj.limit != 'number' || obj.limit < 1) {
     delete obj.limit
   }
-  if (typeof obj.skip != 'number') {
+  if (typeof obj.skip != 'number' || obj.skip < 0) {
     delete obj.skip
   }
 }
