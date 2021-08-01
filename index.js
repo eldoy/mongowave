@@ -91,7 +91,7 @@ module.exports = async function(config = {}) {
 
       count: async function(query = {}, options = {}) {
         flipid(query)
-        return await getCursor(query, options).count()
+        return await collection.countDocuments(query, options)
       },
 
       create: async function(values = {}) {

@@ -10,6 +10,20 @@ describe('Count', () => {
     expect(insert).toBeDefined()
     await db('project').create({ name: 'hello' })
     let count = await db('project').count()
-    expect(count).toEqual(2)
+    expect(count).toBe(2)
+  })
+
+  it('should return specific count', async () => {
+    await db('project').create({ name: 'hello' })
+    await db('project').create({ name: 'bye' })
+    let count = await db('project').count({ name: 'bye' })
+    expect(count).toBe(1)
+  })
+
+  it('should return count with limit', async () => {
+    await db('project').create({ name: 'hello' })
+    await db('project').create({ name: 'bye' })
+    let count = await db('project').count({}, { limit: 1 })
+    expect(count).toBe(1)
   })
 })
