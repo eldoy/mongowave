@@ -1,6 +1,6 @@
 {
   "name": "mongowave",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Mongowave MongoDB client",
   "main": "index.js",
   "scripts": {
