@@ -2,6 +2,8 @@ const { MongoClient } = require('mongodb')
 const cuid = require('cuid')
 const _ = require('lodash')
 
+process.noDeprecation = true
+
 const DEFAULT_CONFIG = {
   url: 'mongodb://localhost:27017',
   name: 'wdb',
