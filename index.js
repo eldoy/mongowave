@@ -20,7 +20,7 @@ const DB_FIELD_UPDATE_OPERATORS = ['$inc', '$min', '$max', '$mul']
 const DBOPTIONS = ['fields', 'limit', 'skip', 'sort']
 
 function denullify(obj) {
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     if (obj[key] && typeof obj[key] === 'object') {
       denullify(obj[key])
     } else if (obj[key] == null) {
@@ -44,7 +44,7 @@ function parseOptions(obj) {
 }
 
 function flipid(obj, out = false) {
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     if (key === '_id' && out) {
       obj.id = obj._id
       delete obj._id
@@ -58,15 +58,15 @@ function flipid(obj, out = false) {
   })
 }
 
-module.exports = async function(config = {}) {
+module.exports = async function (config = {}) {
   config = _.merge({}, DEFAULT_CONFIG, config)
 
-  let client
-  while (!client || !client.isConnected()) {
+  const client = new MongoClient(config.url, config.connection)
+  while (!client.isConnected()) {
     try {
-      client = await MongoClient.connect(config.url, config.connection)
+      await client.connect()
     } catch (e) {
-      await new Promise(r => setTimeout(r, 50))
+      await new Promise((r) => setTimeout(r, 50))
     }
   }
 
@@ -75,7 +75,7 @@ module.exports = async function(config = {}) {
   function db(model) {
     const collection = base.collection(model)
 
-    const getCursor = function(query, options) {
+    const getCursor = function (query, options) {
       let cursor = collection.find(query)
       cursor.fields = cursor.project
       for (const opt in options) {
@@ -87,8 +87,7 @@ module.exports = async function(config = {}) {
     }
 
     return {
-
-      find: async function(query = {}, options = {}) {
+      find: async function (query = {}, options = {}) {
         flipid(query)
         parseOptions(options)
         const result = await getCursor(query, options).toArray()
@@ -97,7 +96,7 @@ module.exports = async function(config = {}) {
         return result
       },
 
-      get: async function(query = {}, options = {}) {
+      get: async function (query = {}, options = {}) {
         flipid(query)
         parseOptions(options)
         options.limit = 1
@@ -107,13 +106,13 @@ module.exports = async function(config = {}) {
         return result[0] || null
       },
 
-      count: async function(query = {}, options = {}) {
+      count: async function (query = {}, options = {}) {
         flipid(query)
         parseOptions(options)
         return await collection.countDocuments(query, options)
       },
 
-      create: async function(values = {}) {
+      create: async function (values = {}) {
         values = _.cloneDeep(values)
         const wasArray = Array.isArray(values)
         denullify(values)
@@ -131,7 +130,7 @@ module.exports = async function(config = {}) {
         return wasArray ? values : values[0]
       },
 
-      update: async function(query = {}, values = {}) {
+      update: async function (query = {}, values = {}) {
         flipid(query)
 
         const operation = {}
@@ -148,7 +147,7 @@ module.exports = async function(config = {}) {
           }
         }
 
-        if (!Object.keys(operation).length) return { n: 0}
+        if (!Object.keys(operation).length) return { n: 0 }
         if (config.timestamps && operation.$set && !operation.$set.updated_at) {
           operation.$set.updated_at = new Date()
         }
@@ -156,7 +155,7 @@ module.exports = async function(config = {}) {
         return { n: result.modifiedCount }
       },
 
-      delete: async function(query = {}) {
+      delete: async function (query = {}) {
         flipid(query)
         const result = await collection.deleteMany(query)
         return { n: result.deletedCount }
@@ -166,7 +165,7 @@ module.exports = async function(config = {}) {
 
   db.client = client
   db.base = base
-  db.drop = function() {
+  db.drop = function () {
     return base.dropDatabase()
   }
 
