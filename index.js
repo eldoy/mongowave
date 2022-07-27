@@ -9,7 +9,6 @@ const DEFAULT_CONFIG = {
   name: 'wdb',
   timestamps: true,
   connection: {
-    poolSize: 100,
     useNewUrlParser: true,
     useUnifiedTopology: true
   }
@@ -62,13 +61,7 @@ module.exports = async function (config = {}) {
   config = _.merge({}, DEFAULT_CONFIG, config)
 
   const client = new MongoClient(config.url, config.connection)
-  while (!client.isConnected()) {
-    try {
-      await client.connect()
-    } catch (e) {
-      await new Promise((r) => setTimeout(r, 50))
-    }
-  }
+  await client.connect()
 
   const base = client.db(config.name)
 
