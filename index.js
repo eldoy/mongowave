@@ -8,6 +8,7 @@ const DEFAULT_CONFIG = {
   url: 'mongodb://localhost:27017',
   name: 'wdb',
   timestamps: true,
+  id: cuid,
   connection: {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -111,7 +112,7 @@ module.exports = async function (config = {}) {
         denullify(values)
         if (!wasArray) values = [values]
         for (const val of values) {
-          val._id = String(val._id || val.id || cuid())
+          val._id = String(val._id || val.id || config.id())
           if (config.timestamps) {
             const date = new Date()
             if (!val.created_at) val.created_at = date

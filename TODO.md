@@ -4,4 +4,8 @@
 - [ ] Add index
 - [ ] Add indexes (multiple)
 - [ ] Drop index
+- [ ] Analyze tool
+  - time taken
+  - strategy report
 - [ ] Speed optimizations
+  - updateMany, createMany and deleteMany is slow
