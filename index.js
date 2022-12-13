@@ -9,6 +9,7 @@ const DEFAULT_CONFIG = {
   name: 'wdb',
   timestamps: true,
   id: cuid,
+  simpleid: true,
   connection: {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -82,26 +83,26 @@ module.exports = async function (config = {}) {
 
     return {
       find: async function (query = {}, options = {}) {
-        flipid(query)
+        if (config.simpleid) flipid(query)
         parseOptions(options)
         const result = await getCursor(query, options).toArray()
         denullify(result)
-        flipid(result, true)
+        if (config.simpleid) flipid(result, true)
         return result
       },
 
       get: async function (query = {}, options = {}) {
-        flipid(query)
+        if (config.simpleid) flipid(query)
         parseOptions(options)
         options.limit = 1
         const result = await getCursor(query, options).toArray()
         denullify(result)
-        flipid(result, true)
+        if (config.simpleid) flipid(result, true)
         return result[0] || null
       },
 
       count: async function (query = {}, options = {}) {
-        flipid(query)
+        if (config.simpleid) flipid(query)
         parseOptions(options)
         return await collection.countDocuments(query, options)
       },
@@ -112,7 +113,9 @@ module.exports = async function (config = {}) {
         denullify(values)
         if (!wasArray) values = [values]
         for (const val of values) {
-          val._id = String(val._id || val.id || config.id())
+          if (config.id) {
+            val._id = String(val._id || val.id || config.id())
+          }
           if (config.timestamps) {
             const date = new Date()
             if (!val.created_at) val.created_at = date
@@ -120,12 +123,12 @@ module.exports = async function (config = {}) {
           }
         }
         await collection.insertMany(values)
-        flipid(values, true)
+        if (config.simpleid) flipid(values, true)
         return wasArray ? values : values[0]
       },
 
       update: async function (query = {}, values = {}) {
-        flipid(query)
+        if (config.simpleid) flipid(query)
 
         const operation = {}
         for (const key in values) {
@@ -150,7 +153,7 @@ module.exports = async function (config = {}) {
       },
 
       delete: async function (query = {}) {
-        flipid(query)
+        if (config.simpleid) flipid(query)
         const result = await collection.deleteMany(query)
         return { n: result.deletedCount }
       }
