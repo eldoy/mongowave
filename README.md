@@ -31,7 +31,7 @@ const db = await connection({
   name: 'wdb',
 
   // Automatically set created_at and updated_at fields on change
-  timestamps: true
+  timestamps: true,
 
   // Function used to generate ids
   id: cuid,
@@ -42,12 +42,22 @@ const db = await connection({
   // The default limit for batch queries
   limit: 20,
 
-
   // Connection options for Mongodb Client
   connection: {
     useNewUrlParser: true,
     useUnifiedTopology: true
   }
+})
+```
+
+If you want to use underscore ids and ObjectIds (default MongoDB behavior):
+```js
+const db = await connection({
+  // Let MongoDB generate id
+  id: false,
+
+  // Use '_id' instead of 'id'
+  simpleid: false
 })
 ```
 
@@ -133,6 +143,12 @@ db.base.collection('project').findOne({ _id: insert.id })
 The mongodb client:
 ```js
 db.client
+```
+
+MongoDB ObjectId short cut:
+```js
+// Generate a new ID
+db.id()
 ```
 
 There's also `batch`, `each`, `aggregate`, `index`, `deindex` and a `analyze`. Read the source code to find out how to use them.
