@@ -1,5 +1,6 @@
-- [ ] Aggregate
-- [ ] Batch
+- [x] Aggregate
+- [x] Batch
+- [ ] Each
 - [ ] Add index
 - [ ] Add indexes (multiple)
 - [ ] Drop index

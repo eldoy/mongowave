@@ -10,6 +10,7 @@ const DEFAULT_CONFIG = {
   timestamps: true,
   id: cuid,
   simpleid: true,
+  limit: 20,
   connection: {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -98,6 +99,29 @@ module.exports = async function (config = {}) {
         denullify(result)
         if (config.simpleid) flipid(result, true)
         return result
+      },
+
+      batch: async function (query = {}, options = {}, callback) {
+        if (config.simpleid) flipid(query)
+        const total = await collection.countDocuments(query)
+        const limit = options.limit || config.limit
+        const pages = parseInt(total / limit) + 1
+
+        let count = 0
+        for (let page = 0; page < pages; page++) {
+          const opt = Object.assign({}, options, {
+            skip: page * limit,
+            limit
+          })
+          const result = await collection.find(query, opt).toArray()
+          denullify(result)
+          if (config.simpleid) flipid(result, true)
+          count += result.length
+          if (typeof callback == 'function') {
+            const percent = ((page / pages) * 100).toFixed(2)
+            await callback(result, { total, page, pages, count, percent })
+          }
+        }
       },
 
       get: async function (query = {}, options = {}) {
