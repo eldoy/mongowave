@@ -224,6 +224,11 @@ module.exports = async function (config = {}) {
   db.base = base
   db.id = ObjectId
 
+  // List all collections for a database
+  db.collections = function () {
+    return base.listCollections().toArray()
+  }
+
   // Add indexes. Experimental.
   db.index = async function (indexes = {}) {
     for (const collection in indexes) {
@@ -243,7 +248,10 @@ module.exports = async function (config = {}) {
   }
 
   // Drop indexes. Experimental.
-  db.deindex = async function (collections = []) {
+  db.deindex = async function (collections) {
+    if (!collections) {
+      collections = (await db.collections()).map((c) => c.name)
+    }
     for (const collection of collections) {
       try {
         await base.collection(collection).dropIndexes()
@@ -253,13 +261,9 @@ module.exports = async function (config = {}) {
     }
   }
 
-  // List all collections for a database
-  db.collections = function () {
-    return base.listCollections().toArray()
-  }
-
   // Drop database
-  db.drop = function () {
+  db.drop = async function () {
+    await db.deindex()
     return base.dropDatabase()
   }
 
