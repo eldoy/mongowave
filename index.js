@@ -91,6 +91,15 @@ module.exports = async function (config = {}) {
         return result
       },
 
+      aggregate: async function (pipeline = [], options = {}) {
+        if (config.simpleid) flipid(pipeline)
+        parseOptions(options)
+        const result = await collection.aggregate(pipeline, options).toArray()
+        denullify(result)
+        if (config.simpleid) flipid(result, true)
+        return result
+      },
+
       get: async function (query = {}, options = {}) {
         if (config.simpleid) flipid(query)
         parseOptions(options)
