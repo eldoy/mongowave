@@ -32,6 +32,22 @@ const db = await connection({
 
   // Automatically set created_at and updated_at fields on change
   timestamps: true
+
+  // Function used to generate ids
+  id: cuid,
+
+  // Use 'id' instead of '_id'
+  simpleid: true,
+
+  // The default limit for batch queries
+  limit: 20,
+
+
+  // Connection options for Mongodb Client
+  connection: {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }
 })
 ```
 
@@ -118,5 +134,7 @@ The mongodb client:
 ```js
 db.client
 ```
+
+There's also `batch`, `each`, `aggregate`, `index`, `deindex` and a `analyze`. Read the source code to find out how to use them.
 
 MIT Licensed. Enjoy!
