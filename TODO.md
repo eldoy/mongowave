@@ -4,6 +4,10 @@
 - [ ] Add index
 - [ ] Add indexes (multiple)
 - [ ] Drop index
+- [ ] Cache
+  - expiry option
+  - cache key option (function)
+  - drop cache every time we create, update or delete
 - [ ] Analyze tool
   - time taken
   - strategy report
