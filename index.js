@@ -216,6 +216,48 @@ module.exports = async function (config = {}) {
         if (config.simpleid) flipid(query)
         const result = await collection.deleteMany(query)
         return { n: result.deletedCount }
+      },
+
+      // Analyze index usage. Very experimental.
+      analyze: async function (query = {}, options = {}) {
+        function trace(plan) {
+          const stages = [plan.stage]
+          let inputStage = plan.inputStage
+          if (inputStage) {
+            do {
+              stages.push(inputStage.stage)
+            } while ((inputStage = inputStage.inputStage))
+          }
+          return stages
+        }
+        const result = await collection.find(query, options).explain()
+
+        console.info(JSON.stringify(result, null, 2))
+
+        const { queryPlanner, executionStats } = result
+        console.info(
+          `Returned ${executionStats.nReturned} documents in ${
+            executionStats.executionTimeMillis / 1000
+          }s.`
+        )
+        console.info(`Total docs examined: ${executionStats.totalDocsExamined}`)
+
+        const stages = trace(queryPlanner.winningPlan)
+        console.info({ stages })
+
+        const BADCODES = ['FETCH', 'COLLSCAN']
+        // This should be 0 if indexes cover the search
+        // totalDocsExamined
+
+        const failed = stages.find((x) => BADCODES.includes(x))
+
+        if (failed) {
+          console.info(`Index missing for query:`)
+          console.info(JSON.stringify({ model, query, options }, null, 2))
+          return result
+        } else {
+          console.info('Index for this query is good!')
+        }
       }
     }
   }
