@@ -2,7 +2,10 @@ const connection = require('../index.js')
 let db
 
 describe('Analyze', () => {
-  beforeAll(async () => (db = await connection()))
+  beforeAll(async () => {
+    console.info = function () {}
+    db = await connection()
+  })
   beforeEach(async () => await db.drop())
 
   it('should index collections', async () => {
