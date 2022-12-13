@@ -151,6 +151,6 @@ MongoDB ObjectId short cut:
 db.id()
 ```
 
-There's also `batch`, `each`, `aggregate`, `index`, `deindex` and a `analyze`. Read the source code to find out how to use them.
+There's also `batch`, `each`, `aggregate`, `index`, `deindex` and `analyze`. Read the source code to find out how to use them.
 
 MIT Licensed. Enjoy!
