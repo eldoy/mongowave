@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb')
+const { MongoClient, ObjectId } = require('mongodb')
 const cuid = require('cuid')
 const _ = require('lodash')
 
@@ -162,6 +162,7 @@ module.exports = async function (config = {}) {
 
   db.client = client
   db.base = base
+  db.id = ObjectId
   db.drop = function () {
     return base.dropDatabase()
   }
