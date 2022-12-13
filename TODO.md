@@ -1,9 +1,9 @@
-- [ ] Optional flipid
 - [ ] Aggregate
 - [ ] Batch
 - [ ] Add index
 - [ ] Add indexes (multiple)
 - [ ] Drop index
+
 - [ ] Cache
   - expiry option
   - cache key option (function)
