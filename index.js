@@ -223,6 +223,42 @@ module.exports = async function (config = {}) {
   db.client = client
   db.base = base
   db.id = ObjectId
+
+  // Add indexes. Experimental.
+  db.index = async function (indexes = {}) {
+    for (const collection in indexes) {
+      const index = indexes[collection]
+      for (const values of index) {
+        const [fields, options] = values
+        try {
+          console.info('Adding index to', collection)
+          console.info(JSON.stringify(fields, null, 2))
+          console.info(JSON.stringify(options || {}, null, 2))
+          await db.base.collection(collection).createIndex(fields, options)
+        } catch (e) {
+          console.info(e.message)
+        }
+      }
+    }
+  }
+
+  // Drop indexes. Experimental.
+  db.deindex = async function (collections = []) {
+    for (const collection of collections) {
+      try {
+        await base.collection(collection).dropIndexes()
+      } catch (e) {
+        console.info(e.message)
+      }
+    }
+  }
+
+  // List all collections for a database
+  db.collections = function () {
+    return base.listCollections().toArray()
+  }
+
+  // Drop database
   db.drop = function () {
     return base.dropDatabase()
   }
