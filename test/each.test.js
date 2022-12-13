@@ -3,15 +3,15 @@ let db
 
 const docs = [{ name: 'a' }, { name: 'b' }, { name: 'c' }]
 
-describe('Batch', () => {
+describe('Each', () => {
   beforeAll(async () => (db = await connection()))
   beforeEach(async () => await db.drop())
 
-  it('should batch find documents', async () => {
+  it('should find each document', async () => {
     await db('project').create(docs)
     let list = []
-    await db('project').batch(async function (projects) {
-      list = list.concat(projects)
+    await db('project').each(async function (project) {
+      list.push(project)
     })
     expect(list[0].name).toBe('a')
     expect(list[1].name).toBe('b')

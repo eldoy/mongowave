@@ -60,6 +60,18 @@ function flipid(obj, out = false) {
   })
 }
 
+function pull(args) {
+  let [query, options, callback] = args
+  if (typeof query == 'function') {
+    callback = query
+    query = options = {}
+  } else if (typeof options == 'function') {
+    callback = options
+    options = {}
+  }
+  return [query, options, callback]
+}
+
 module.exports = async function (config = {}) {
   config = _.merge({}, DEFAULT_CONFIG, config)
 
@@ -101,8 +113,10 @@ module.exports = async function (config = {}) {
         return result
       },
 
-      batch: async function (query = {}, options = {}, callback) {
+      batch: async function (...args) {
+        const [query, options, callback] = pull(args)
         if (config.simpleid) flipid(query)
+        parseOptions(options)
         const total = await collection.countDocuments(query)
         const limit = options.limit || config.limit
         const pages = parseInt(total / limit) + 1
@@ -122,6 +136,19 @@ module.exports = async function (config = {}) {
             await callback(result, { total, page, pages, count, percent })
           }
         }
+      },
+
+      each: async function (...args) {
+        const [query, options, callback] = pull(args)
+        if (config.simpleid) flipid(query)
+        parseOptions(options)
+        await getCursor(query, options).forEach(async function (result) {
+          denullify(result)
+          if (config.simpleid) flipid(result, true)
+          if (typeof callback == 'function') {
+            await callback(result)
+          }
+        })
       },
 
       get: async function (query = {}, options = {}) {
