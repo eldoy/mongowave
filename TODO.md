@@ -1,0 +1,7 @@
+- [ ] Optional flipid
+- [ ] Aggregate
+- [ ] Batch
+- [ ] Add index
+- [ ] Add indexes (multiple)
+- [ ] Drop index
+- [ ] Speed optimizations
