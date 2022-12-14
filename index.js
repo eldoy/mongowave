@@ -10,7 +10,7 @@ const DEFAULT_CONFIG = {
   timestamps: true,
   id: cuid,
   simpleid: true,
-  limit: 20,
+  batchsize: 1000,
   connection: {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -116,25 +116,35 @@ module.exports = async function (config = {}) {
       const [query, options, callback] = pull(args)
       if (config.simpleid) flipid(query)
       parseOptions(options)
-      const total = await collection.countDocuments(query)
-      const limit = options.limit || config.limit
-      const pages = parseInt(total / limit) + 1
+
+      const size = options.size || config.batchsize
+      delete options.size
+
+      // Fetch ids
+      const all = await find(query, {
+        sort: options.sort,
+        limit: options.limit,
+        fields: { id: 1 }
+      })
+
+      const total = all.length
+      const pages = parseInt(total / size) + 1
 
       let count = 0
-      for (let page = 0; page < pages; page++) {
-        const opt = Object.assign({}, options, {
-          skip: page * limit,
-          limit
-        })
-        const result = await collection.find(query, opt).toArray()
+      for (let page = 1; page <= pages; page++) {
+        const ids = all.slice(count, page * size).map((x) => x.id)
+        const result = await find(
+          { id: { $in: ids } },
+          { fields: options.fields }
+        )
         denullify(result)
         if (config.simpleid) flipid(result, true)
         count += result.length
         if (typeof callback == 'function') {
-          const percent = (((page + 1) / pages) * 100).toFixed(2)
+          const percent = ((page / pages) * 100).toFixed(2)
           await callback(result, {
             total,
-            page: page + 1,
+            page,
             pages,
             count,
             percent

@@ -1,7 +1,11 @@
 const connection = require('../index.js')
 let db
 
-const docs = [{ name: 'a' }, { name: 'b' }, { name: 'c' }]
+let docs = []
+const n = 1431
+for (let i = 0; i < n; i++) {
+  docs.push({ name: String(i + 1) })
+}
 
 describe('Batch', () => {
   beforeAll(async () => (db = await connection()))
@@ -13,8 +17,10 @@ describe('Batch', () => {
     await db('project').batch(async function (projects) {
       list = list.concat(projects)
     })
-    expect(list[0].name).toBe('a')
-    expect(list[1].name).toBe('b')
-    expect(list[2].name).toBe('c')
+    expect(list.length).toBe(docs.length)
+    for (let i = 0; i < n; i++) {
+      expect(docs[i].name).toEqual(list[i].name)
+    }
+    expect(list.length).toEqual(docs.length)
   })
 })
