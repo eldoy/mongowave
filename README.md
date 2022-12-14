@@ -39,8 +39,8 @@ const db = await connection({
   // Use 'id' instead of '_id'
   simpleid: true,
 
-  // The default limit for batch queries
-  limit: 20,
+  // The default size for batch queries
+  batchsize: 20,
 
   // Connection options for Mongodb Client
   connection: {
