@@ -131,8 +131,14 @@ module.exports = async function (config = {}) {
         if (config.simpleid) flipid(result, true)
         count += result.length
         if (typeof callback == 'function') {
-          const percent = ((page / pages) * 100).toFixed(2)
-          await callback(result, { total, page, pages, count, percent })
+          const percent = (((page + 1) / pages) * 100).toFixed(2)
+          await callback(result, {
+            total,
+            page: page + 1,
+            pages,
+            count,
+            percent
+          })
         }
       }
     }
