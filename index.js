@@ -17,6 +17,8 @@ const DEFAULT_CONFIG = {
   }
 }
 
+const DEFAULT_TIMESTAMPS = { create: 'created_at', update: 'updated_at' }
+
 const DB_FIELD_UPDATE_OPERATORS = ['$inc', '$min', '$max', '$mul']
 
 const DBOPTIONS = ['fields', 'limit', 'skip', 'sort']
@@ -74,7 +76,9 @@ function pull(args) {
 
 module.exports = async function (config = {}) {
   config = _.merge({}, DEFAULT_CONFIG, config)
-
+  if (config.timestamps === true) {
+    config.timestamps = DEFAULT_TIMESTAMPS
+  }
   const client = new MongoClient(config.url, config.connection)
   await client.connect()
 
@@ -191,10 +195,13 @@ module.exports = async function (config = {}) {
         if (config.id) {
           val._id = String(val._id || val.id || config.id())
         }
-        if (config.timestamps) {
-          const date = new Date()
-          if (!val.created_at) val.created_at = date
-          if (!val.updated_at) val.updated_at = date
+        const { create, update } = config.timestamps
+        const date = new Date()
+        if (create && typeof val[create] == 'undefined') {
+          val[create] = date
+        }
+        if (update && typeof val[update] == 'undefined') {
+          val[update] = date
         }
       }
       await collection.insertMany(values)
@@ -220,8 +227,13 @@ module.exports = async function (config = {}) {
       }
 
       if (!Object.keys(operation).length) return { n: 0 }
-      if (config.timestamps && operation.$set && !operation.$set.updated_at) {
-        operation.$set.updated_at = new Date()
+      const { update } = config.timestamps
+      if (
+        update &&
+        operation.$set &&
+        typeof operation.$set[update] == 'undefined'
+      ) {
+        operation.$set[update] = new Date()
       }
       const result = await collection.updateMany(query, operation)
       return { n: result.modifiedCount }
