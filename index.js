@@ -186,7 +186,7 @@ module.exports = async function (config = {}) {
       return await collection.countDocuments(query, options)
     }
 
-    async function create(values = {}) {
+    async function create(values = {}, options = {}) {
       values = _.cloneDeep(values)
       const wasArray = Array.isArray(values)
       denullify(values)
@@ -204,12 +204,12 @@ module.exports = async function (config = {}) {
           val[update] = date
         }
       }
-      await collection.insertMany(values)
+      await collection.insertMany(values, options)
       if (config.simpleid) flipid(values, true)
       return wasArray ? values : values[0]
     }
 
-    async function update(query = {}, values = {}) {
+    async function update(query = {}, values = {}, options = {}) {
       if (config.simpleid) flipid(query)
 
       const operation = {}
@@ -235,13 +235,13 @@ module.exports = async function (config = {}) {
       ) {
         operation.$set[update] = new Date()
       }
-      const result = await collection.updateMany(query, operation)
+      const result = await collection.updateMany(query, operation, options)
       return { n: result.modifiedCount }
     }
 
-    async function del(query = {}) {
+    async function del(query = {}, options = {}) {
       if (config.simpleid) flipid(query)
-      const result = await collection.deleteMany(query)
+      const result = await collection.deleteMany(query, options)
       return { n: result.deletedCount }
     }
 
