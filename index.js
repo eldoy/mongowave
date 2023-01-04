@@ -245,6 +245,16 @@ module.exports = async function (config = {}) {
       return { n: result.deletedCount }
     }
 
+    async function set(query = {}, values) {
+      if (values === null) {
+        return await del(query)
+      } else if (values) {
+        return await update(query, values)
+      } else {
+        return await create(query)
+      }
+    }
+
     async function analyze(query = {}, options = {}) {
       const result = await collection.find(query, options).explain()
       console.info(JSON.stringify(result, null, 2))
@@ -294,6 +304,7 @@ module.exports = async function (config = {}) {
       create,
       update,
       delete: del,
+      set,
       analyze
     }
   }
