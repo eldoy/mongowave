@@ -23,6 +23,7 @@ const DB_FIELD_UPDATE_OPERATORS = ['$inc', '$min', '$max', '$mul']
 
 const DBOPTIONS = ['fields', 'limit', 'skip', 'sort']
 
+// Recursively remove null and undefined
 function denullify(obj) {
   Object.keys(obj).forEach((key) => {
     if (obj[key] && typeof obj[key] === 'object') {
@@ -33,6 +34,7 @@ function denullify(obj) {
   })
 }
 
+// Parse options
 function parseOptions(obj) {
   for (const key in obj) {
     if (typeof obj[key] == 'undefined') {
@@ -47,6 +49,7 @@ function parseOptions(obj) {
   }
 }
 
+// Turn _id to id and reverse
 function flipid(obj, out = false) {
   Object.keys(obj).forEach((key) => {
     if (key === '_id' && out) {
@@ -62,6 +65,7 @@ function flipid(obj, out = false) {
   })
 }
 
+// Helper for function parameters
 function pull(args) {
   let [query, options, callback] = args
   if (typeof query == 'function') {
@@ -98,6 +102,7 @@ module.exports = async function (config = {}) {
       return cursor
     }
 
+    // Finds data all in one go
     async function find(query = {}, options = {}) {
       if (config.simpleid) flipid(query)
       parseOptions(options)
@@ -107,6 +112,7 @@ module.exports = async function (config = {}) {
       return result
     }
 
+    // Find as aggragate
     async function aggregate(pipeline = [], options = {}) {
       if (config.simpleid) flipid(pipeline)
       parseOptions(options)
@@ -116,6 +122,43 @@ module.exports = async function (config = {}) {
       return result
     }
 
+    // Find batched but keeps sort
+    async function search(...args) {
+      const [query, options, callback] = pull(args)
+      if (config.simpleid) flipid(query)
+      parseOptions(options)
+
+      const size = options.size || config.batchsize
+      delete options.size
+
+      const total = await count(query)
+      const pages = parseInt(total / size) + 1
+
+      let c = 0
+      for (let page = 0; page <= pages; page++) {
+        const result = await find(query, {
+          sort: options.sort,
+          skip: page * size,
+          limit: size,
+          fields: options.fields
+        })
+        denullify(result)
+        if (config.simpleid) flipid(result, true)
+        c += result.length
+        if (typeof callback == 'function') {
+          const percent = ((page / pages) * 100).toFixed(2)
+          await callback(result, {
+            total,
+            page,
+            pages,
+            count: c,
+            percent
+          })
+        }
+      }
+    }
+
+    // Faster batched find but result is unsorted
     async function batch(...args) {
       const [query, options, callback] = pull(args)
       if (config.simpleid) flipid(query)
@@ -157,6 +200,7 @@ module.exports = async function (config = {}) {
       }
     }
 
+    // Find one by one
     async function each(...args) {
       const [query, options, callback] = pull(args)
       if (config.simpleid) flipid(query)
@@ -170,6 +214,7 @@ module.exports = async function (config = {}) {
       })
     }
 
+    // Find only one
     async function get(query = {}, options = {}) {
       if (config.simpleid) flipid(query)
       parseOptions(options)
@@ -180,12 +225,14 @@ module.exports = async function (config = {}) {
       return result[0] || null
     }
 
+    // Count
     async function count(query = {}, options = {}) {
       if (config.simpleid) flipid(query)
       parseOptions(options)
       return await collection.countDocuments(query, options)
     }
 
+    // Create
     async function create(values = {}, options = {}) {
       values = _.cloneDeep(values)
       const wasArray = Array.isArray(values)
@@ -209,6 +256,7 @@ module.exports = async function (config = {}) {
       return wasArray ? values : values[0]
     }
 
+    // Update
     async function update(query = {}, values = {}, options = {}) {
       if (config.simpleid) flipid(query)
 
@@ -239,12 +287,14 @@ module.exports = async function (config = {}) {
       return { n: result.modifiedCount }
     }
 
+    // Delete
     async function del(query = {}, options = {}) {
       if (config.simpleid) flipid(query)
       const result = await collection.deleteMany(query, options)
       return { n: result.deletedCount }
     }
 
+    // Set, alternative to create, update and delete
     async function set(query = {}, values) {
       if (values === null) {
         return await del(query)
@@ -255,6 +305,7 @@ module.exports = async function (config = {}) {
       }
     }
 
+    // Experimental analyzer for queries
     async function analyze(query = {}, options = {}) {
       const result = await collection.find(query, options).explain()
       console.info(JSON.stringify(result, null, 2))
@@ -297,6 +348,7 @@ module.exports = async function (config = {}) {
     return {
       find,
       aggregate,
+      search,
       batch,
       each,
       get,
