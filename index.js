@@ -129,15 +129,17 @@ module.exports = async function (config = {}) {
       parseOptions(options)
 
       const size = options.size || config.batchsize
-      const total = await count(query)
-      const pages = parseInt(total / size) + 1
+      const limit = options.limit || size
+      const total = await count(query, { limit: options.limit })
+      const add = typeof options.limit == 'undefined' ? 1 : 0
+      const pages = parseInt(total / limit) + add
 
       let c = 0
-      for (let page = 0; page <= pages; page++) {
+      for (let page = 0; page < pages; page++) {
         const result = await find(query, {
           sort: options.sort,
-          skip: page * size,
-          limit: size,
+          skip: page * limit,
+          limit,
           fields: options.fields
         })
         denullify(result)
