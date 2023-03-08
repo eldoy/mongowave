@@ -8,11 +8,13 @@ for (let i = 0; i < n; i++) {
 }
 
 describe('Batch', () => {
-  beforeAll(async () => (db = await connection()))
-  beforeEach(async () => await db.drop())
+  beforeAll(async () => {
+    db = await connection()
+    await db.drop()
+    await db('project').create(docs)
+  })
 
   it('should batch find documents', async () => {
-    await db('project').create(docs)
     let list = []
     await db('project').batch(async function (projects) {
       list = list.concat(projects)
@@ -22,5 +24,14 @@ describe('Batch', () => {
       expect(docs[i].name).toEqual(list[i].name)
     }
     expect(list.length).toEqual(docs.length)
+  })
+
+  it('should batch find documents limited', async () => {
+    let list = [],
+      limit = 10
+    await db('project').batch({}, { limit }, async function (projects) {
+      list = list.concat(projects)
+    })
+    expect(list.length).toBe(limit)
   })
 })
