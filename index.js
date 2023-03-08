@@ -122,15 +122,13 @@ module.exports = async function (config = {}) {
       return result
     }
 
-    // Find batched but keeps sort
+    // Batched find for large datasets
     async function search(...args) {
       const [query, options, callback] = pull(args)
       if (config.simpleid) flipid(query)
       parseOptions(options)
 
       const size = options.size || config.batchsize
-      delete options.size
-
       const total = await count(query)
       const pages = parseInt(total / size) + 1
 
@@ -158,7 +156,7 @@ module.exports = async function (config = {}) {
       }
     }
 
-    // Faster batched find but result is unsorted
+    // Faster batched find for smaller datasets
     async function batch(...args) {
       const [query, options, callback] = pull(args)
       if (config.simpleid) flipid(query)
@@ -182,7 +180,10 @@ module.exports = async function (config = {}) {
         const ids = all.slice(count, page * size).map((x) => x.id)
         const result = await find(
           { id: { $in: ids } },
-          { fields: options.fields }
+          {
+            sort: options.sort,
+            fields: options.fields
+          }
         )
         denullify(result)
         if (config.simpleid) flipid(result, true)
