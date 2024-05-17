@@ -112,7 +112,7 @@ module.exports = async function (config = {}) {
       return result
     }
 
-    // Find as aggragate
+    // Find as aggregate
     async function aggregate(pipeline = [], options = {}) {
       if (config.simpleid) flipid(pipeline)
       parseOptions(options)
