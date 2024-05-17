@@ -241,6 +241,7 @@ module.exports = async function (config = {}) {
       const wasArray = Array.isArray(values)
       denullify(values)
       if (!wasArray) values = [values]
+      if (config.simpleid) flipid(values)
       for (const val of values) {
         if (config.id) {
           val._id = String(val._id || val.id || config.id())

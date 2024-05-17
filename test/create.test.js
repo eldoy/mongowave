@@ -2,11 +2,11 @@ const connection = require('../index.js')
 let db
 
 describe('Create', () => {
-  beforeAll(async () => db = await connection())
+  beforeAll(async () => (db = await connection()))
   beforeEach(async () => await db.drop())
 
   it('should create a document', async () => {
-    const create = await db('project').create({ name: 'hello'})
+    const create = await db('project').create({ name: 'hello' })
     expect(create.id).toBeDefined()
     expect(create.name).toBe('hello')
     expect(typeof create.id).toEqual('string')
@@ -15,7 +15,8 @@ describe('Create', () => {
 
   it('should create multiple documents', async () => {
     const result = await db('project').create([
-      { name: 'hello'}, { name: 'bye' }
+      { name: 'hello' },
+      { name: 'bye' }
     ])
     expect(result.length).toBe(2)
     expect(result[0].id).toBeDefined()
@@ -38,5 +39,23 @@ describe('Create', () => {
     const create = await db('project').create(values)
     expect(create.id).toBeDefined()
     expect(values).toEqual({ hello: 1 })
+  })
+
+  it('should not save id in database', async () => {
+    const values = { id: '1' }
+
+    const create = await db('project').create(values)
+    expect(create._id).toBeUndefined()
+    expect(create.id).toBe('1')
+
+    const find = await db('project').find()
+    expect(find.length).toBe(1)
+    expect(find[0]._id).toBeUndefined()
+    expect(find[0].id).toBe('1')
+
+    const base = await db.base.collection('project').find().toArray()
+    expect(base.length).toBe(1)
+    expect(base[0]._id).toBe('1')
+    expect(base[0].id).toBeUndefined()
   })
 })
