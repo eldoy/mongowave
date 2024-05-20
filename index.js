@@ -1,6 +1,6 @@
 const { MongoClient, ObjectId } = require('mongodb')
 const cuid = require('cuid')
-const _ = require('lodash')
+const lodash = require('lodash')
 const extras = require('extras')
 
 process.noDeprecation = true
@@ -95,7 +95,7 @@ module.exports = async function (config = {}) {
   if (typeof config == 'string') {
     config = { name: config }
   }
-  config = _.merge({}, DEFAULT_CONFIG, config)
+  config = lodash.merge({}, DEFAULT_CONFIG, config)
   if (config.timestamps === true) {
     config.timestamps = DEFAULT_TIMESTAMPS
   }
@@ -267,7 +267,7 @@ module.exports = async function (config = {}) {
 
     // Create
     async function create(values = {}, options = {}) {
-      values = _.cloneDeep(values)
+      values = lodash.cloneDeep(values)
       const wasArray = Array.isArray(values)
       denullify(values)
       if (!wasArray) values = [values]
