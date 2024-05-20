@@ -7,7 +7,7 @@ for (let i = 0; i < n; i++) {
   docs.push({ name: String(i + 1) })
 }
 
-describe('First', () => {
+describe('Last', () => {
   beforeAll(async () => {
     db = await connection()
     await db.drop()
