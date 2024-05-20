@@ -291,6 +291,11 @@ module.exports = async function (config = {}) {
       return { n: result.modifiedCount }
     }
 
+    // Upsert
+    async function upsert(query = {}, values = {}) {
+      return update(query, values, { upsert: true })
+    }
+
     // Delete
     async function del(query = {}, options = {}) {
       if (config.simpleid) flipid(query)
@@ -359,6 +364,7 @@ module.exports = async function (config = {}) {
       count,
       create,
       update,
+      upsert,
       delete: del,
       set,
       analyze
