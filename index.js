@@ -228,6 +228,21 @@ module.exports = async function (config = {}) {
       return result[0] || null
     }
 
+    // Find first created
+    async function first(query = {}) {
+      return get(query, { sort: { created_at: 1 } })
+    }
+
+    // Find last created
+    async function last(query = {}) {
+      return get(query, { sort: { created_at: -1 } })
+    }
+
+    // Find last updated
+    async function changed(query = {}) {
+      return get(query, { sort: { updated_at: -1 } })
+    }
+
     // Count
     async function count(query = {}, options = {}) {
       if (config.simpleid) flipid(query)
@@ -356,6 +371,9 @@ module.exports = async function (config = {}) {
       batch,
       each,
       get,
+      first,
+      last,
+      changed,
       count,
       create,
       update,
