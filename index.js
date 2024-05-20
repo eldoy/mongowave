@@ -79,6 +79,9 @@ function pull(args) {
 }
 
 module.exports = async function (config = {}) {
+  if (config && typeof config == 'string') {
+    config = { name: config }
+  }
   config = _.merge({}, DEFAULT_CONFIG, config)
   if (config.timestamps === true) {
     config.timestamps = DEFAULT_TIMESTAMPS
