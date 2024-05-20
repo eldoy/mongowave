@@ -1,6 +1,7 @@
 const { MongoClient, ObjectId } = require('mongodb')
 const cuid = require('cuid')
 const _ = require('lodash')
+const { print } = require('extras')
 
 process.noDeprecation = true
 
@@ -11,6 +12,7 @@ const DEFAULT_CONFIG = {
   id: cuid,
   simpleid: true,
   batchsize: 1000,
+  print: true,
   connection: {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -192,6 +194,7 @@ module.exports = async function (config = {}) {
         count += result.length
         if (typeof callback == 'function') {
           const percent = ((page / pages) * 100).toFixed(2)
+          if (config.print) print(`${percent}% ${total} ${page}/${pages}`)
           await callback(result, {
             total,
             page,
