@@ -97,4 +97,47 @@ describe('Update', () => {
     const doc2 = await db('project').get({ id: '1' })
     expect(doc2.name).toBe('bye')
   })
+
+  // alternative query
+  it('no id string match, should return an empty array', async () => {
+    await db('project').create({ id: '1' })
+    var update = await db('project').update('0', { name: 'update' })
+    expect(update.n).toBe(0)
+
+    var find = await db('project').find({ name: 'update' })
+    expect(find.length).toBe(0)
+  })
+
+  it('id string match, should return matching document', async () => {
+    await db('project').create({ id: '1' })
+    var update = await db('project').update('1', { name: 'update' })
+    expect(update.n).toBe(1)
+
+    var find = await db('project').find({ name: 'update' })
+    expect(find.length).toBe(1)
+    expect(find[0].id).toBe('1')
+    expect(find[0].name).toBe('update')
+  })
+
+  it('no id array match, should return an empty array', async () => {
+    await db('project').create({ id: '1' })
+    var update = await db('project').update(['0', '2'], { name: 'update' })
+    expect(update.n).toBe(0)
+
+    var find = await db('project').find({ name: 'update' })
+    expect(find.length).toBe(0)
+  })
+
+  it('id array match, should return matching documents', async () => {
+    await db('project').create([{ id: '1' }, { id: '2' }])
+    var update = await db('project').update(['1', '2'], { name: 'update' })
+    expect(update.n).toBe(2)
+
+    var find = await db('project').find({ name: 'update' })
+    expect(find.length).toBe(2)
+    expect(find[0].id).toBe('1')
+    expect(find[0].name).toBe('update')
+    expect(find[1].id).toBe('2')
+    expect(find[1].name).toBe('update')
+  })
 })
