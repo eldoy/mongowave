@@ -12,7 +12,7 @@ const DEFAULT_CONFIG = {
   id: cuid,
   simpleid: true,
   batchsize: 1000,
-  print: true,
+  quiet: false,
   connection: {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -182,7 +182,9 @@ module.exports = async function (config = {}) {
       parseOptions(options)
 
       const size = options.size || config.batchsize
+      const quiet = options.quiet || config.quiet
       delete options.size
+      delete options.quiet
 
       // Fetch ids
       const all = await find(query, {
@@ -208,7 +210,7 @@ module.exports = async function (config = {}) {
         count += result.length
         if (typeof callback == 'function') {
           const percent = ((page / pages) * 100).toFixed(2)
-          if (config.print) {
+          if (!quiet) {
             extras.print(`${percent}% ${total} ${page}/${pages}`)
           }
           await Promise.all(result.map(callback))
