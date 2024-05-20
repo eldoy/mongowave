@@ -82,7 +82,7 @@ function pull(args) {
 
 // Support alternative query
 function parseQuery(obj, array = true) {
-  if (obj && typeof obj == 'string') {
+  if (typeof obj == 'string') {
     return { id: obj }
   }
   if (array && _.isArray(obj)) {
@@ -92,7 +92,7 @@ function parseQuery(obj, array = true) {
 }
 
 module.exports = async function (config = {}) {
-  if (config && typeof config == 'string') {
+  if (typeof config == 'string') {
     config = { name: config }
   }
   config = _.merge({}, DEFAULT_CONFIG, config)
