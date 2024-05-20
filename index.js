@@ -25,17 +25,6 @@ const DB_FIELD_UPDATE_OPERATORS = ['$inc', '$min', '$max', '$mul']
 
 const DBOPTIONS = ['fields', 'limit', 'skip', 'sort']
 
-// Recursively remove null and undefined
-function denullify(obj) {
-  Object.keys(obj).forEach((key) => {
-    if (obj[key] && typeof obj[key] === 'object') {
-      denullify(obj[key])
-    } else if (obj[key] == null) {
-      delete obj[key]
-    }
-  })
-}
-
 // Parse options
 function parseOptions(obj) {
   for (const key in obj) {
@@ -49,6 +38,28 @@ function parseOptions(obj) {
   if (typeof obj.skip != 'number' || obj.skip < 0) {
     delete obj.skip
   }
+}
+
+// Support alternative query
+function parseQuery(obj) {
+  if (typeof obj == 'string') {
+    return { id: obj }
+  }
+  if (Array.isArray(obj)) {
+    return { id: { $in: obj } }
+  }
+  return obj
+}
+
+// Recursively remove null and undefined
+function denullify(obj) {
+  Object.keys(obj).forEach((key) => {
+    if (obj[key] && typeof obj[key] === 'object') {
+      denullify(obj[key])
+    } else if (obj[key] == null) {
+      delete obj[key]
+    }
+  })
 }
 
 // Turn _id to id and reverse
@@ -78,17 +89,6 @@ function pull(args) {
     options = {}
   }
   return [query, options, callback]
-}
-
-// Support alternative query
-function parseQuery(obj, array = true) {
-  if (typeof obj == 'string') {
-    return { id: obj }
-  }
-  if (array && _.isArray(obj)) {
-    return { id: { $in: obj } }
-  }
-  return obj
 }
 
 module.exports = async function (config = {}) {
@@ -230,7 +230,7 @@ module.exports = async function (config = {}) {
 
     // Find only one
     async function get(query = {}, options = {}) {
-      query = parseQuery(query, false)
+      query = parseQuery(query)
       if (config.simpleid) flipid(query)
       parseOptions(options)
       options.limit = 1
@@ -323,7 +323,7 @@ module.exports = async function (config = {}) {
     // Upsert
     async function upsert(query = {}, values = {}) {
       if (!Object.keys(values).length) return null
-      query = parseQuery(query, false)
+      query = parseQuery(query)
       var existing = await get(query)
       if (existing) {
         await update(query, values)
