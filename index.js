@@ -194,41 +194,24 @@ module.exports = async function (config = {}) {
       const total = all.length
       const pages = parseInt(total / size) + 1
 
-      var count = 0
-      var pageIds = [...Array(pages).keys()].map((idx) => {
-        var page = idx + 1
+      let count = 0
+      for (let page = 1; page <= pages; page++) {
         const ids = all.slice(count, page * size).map((x) => x.id)
-        count += ids.length
-        return ids
-      })
-
-      count = 0
-      await Promise.all(
-        pageIds.map(async (ids, idx) => {
-          var page = idx + 1
-          const result = await find(
-            { id: { $in: ids } },
-            {
-              sort: options.sort,
-              fields: options.fields
-            }
-          )
-          denullify(result)
-          if (config.simpleid) flipid(result, true)
-          count += result.length
-          if (typeof callback == 'function') {
-            const percent = ((page / pages) * 100).toFixed(2)
-            if (config.print) print(`${percent}% ${total} ${page}/${pages}`)
-            await callback(result, {
-              total,
-              page,
-              pages,
-              count,
-              percent
-            })
+        const result = await find(
+          { id: { $in: ids } },
+          {
+            fields: options.fields
           }
-        })
-      )
+        )
+        denullify(result)
+        if (config.simpleid) flipid(result, true)
+        count += result.length
+        if (typeof callback == 'function') {
+          const percent = ((page / pages) * 100).toFixed(2)
+          if (config.print) print(`${percent}% ${total} ${page}/${pages}`)
+          await Promise.all(result.map(callback))
+        }
+      }
     }
 
     // Find one by one
