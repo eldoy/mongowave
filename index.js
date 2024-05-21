@@ -326,15 +326,12 @@ module.exports = async function (config = {}) {
 
     // Upsert
     async function upsert(query = {}, values = {}) {
-      if (!Object.keys(values).length) return null
-      query = parseQuery(query)
       var existing = await get(query)
       if (existing) {
-        await update(query, values)
-        return get(existing.id)
-      } else {
-        return create({ ...query, ...values })
+        await update(existing.id, values)
+        return await get(existing.id)
       }
+      return await create(values)
     }
 
     // Delete

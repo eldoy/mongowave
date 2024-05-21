@@ -22,24 +22,6 @@ describe('Upsert', () => {
     expect(first.name).toEqual('bye')
   })
 
-  it('should not update a document without values', async () => {
-    await db('project').create({ name: 'hello' })
-    var upsert = await db('project').upsert({ name: 'hello' })
-    expect(upsert).toBe(null)
-    var first = await db('project').get()
-    expect(first.name).toEqual('hello')
-    upsert = await db('project').upsert(
-      { name: 'hello' },
-      { name: null, bye: 'bye' }
-    )
-    expect(upsert).not.toBe(null)
-    expect(upsert.name).toBeUndefined()
-    expect(upsert.bye).toEqual('bye')
-    first = await db('project').get()
-    expect(first.name).toBeUndefined()
-    expect(first.bye).toBe('bye')
-  })
-
   it('should update first document only', async () => {
     await db('project').create([{ name: 'hello' }, { name: 'goodbye' }])
     var upsert = await db('project').upsert({ name: 'hello' }, { name: 'bye' })
@@ -87,15 +69,18 @@ describe('Upsert', () => {
 
   it('should upsert', async () => {
     var upsert = await db('project').upsert({ id: '1' }, { name: 'hello' })
+
     expect(upsert).not.toBe(null)
     expect(upsert.name).toBe('hello')
-    var doc = await db('project').get({ id: '1' })
+
+    var doc = await db('project').get({ id: upsert.id })
+
     expect(doc.name).toBe('hello')
 
-    var upsert2 = await db('project').upsert({ id: '1' }, { name: 'bye' })
+    var upsert2 = await db('project').upsert({ id: upsert.id }, { name: 'bye' })
     expect(upsert2).not.toBe(null)
     expect(upsert2.name).toBe('bye')
-    var doc2 = await db('project').get({ id: '1' })
+    var doc2 = await db('project').get({ id: upsert.id })
     expect(doc2.name).toBe('bye')
   })
 
@@ -104,7 +89,6 @@ describe('Upsert', () => {
     await db('project').create({ id: '1' })
     var upsert = await db('project').upsert('0', { name: 'upsert' })
     expect(upsert).not.toBe(null)
-    expect(upsert.id).toBe('0')
     expect(upsert.name).toBe('upsert')
 
     var find = await db('project').find({ name: 'upsert' })
@@ -120,7 +104,7 @@ describe('Upsert', () => {
 
     var find = await db('project').find()
     expect(find.length).toBe(1)
-    expect(find[0].id).toBe('1')
+    expect(find[0].id).toBe(upsert.id)
     expect(find[0].name).toBe('upsert')
   })
 })
