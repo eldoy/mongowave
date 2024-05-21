@@ -69,12 +69,10 @@ describe('Upsert', () => {
 
   it('should upsert', async () => {
     var upsert = await db('project').upsert({ id: '1' }, { name: 'hello' })
-
     expect(upsert).not.toBe(null)
     expect(upsert.name).toBe('hello')
 
     var doc = await db('project').get({ id: upsert.id })
-
     expect(doc.name).toBe('hello')
 
     var upsert2 = await db('project').upsert({ id: upsert.id }, { name: 'bye' })
