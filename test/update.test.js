@@ -98,6 +98,27 @@ describe('Update', () => {
     expect(doc2.name).toBe('bye')
   })
 
+  it('should not save id in database', async () => {
+    var values = { id: '1' }
+
+    var create = await db('project').create(values)
+    expect(create._id).toBeUndefined()
+    expect(create.id).toBe('1')
+
+    var update = await db('project').update(values, { name: 'Test' })
+    expect(update.n).toBe(1)
+
+    var find = await db('project').find()
+    expect(find.length).toBe(1)
+    expect(find[0]._id).toBeUndefined()
+    expect(find[0].id).toBe('1')
+
+    var base = await db.base.collection('project').find().toArray()
+    expect(base.length).toBe(1)
+    expect(base[0]._id).toBe('1')
+    expect(base[0].id).toBeUndefined()
+  })
+
   // alternative query
   it('no id string match, should return an empty array', async () => {
     await db('project').create({ id: '1' })

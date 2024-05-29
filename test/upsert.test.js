@@ -82,6 +82,21 @@ describe('Upsert', () => {
     expect(doc2.name).toBe('bye')
   })
 
+  it('should not save id in database', async () => {
+    var create = await db('project').upsert()
+    await db('project').upsert({ id: create.id }, { name: 'Test' })
+
+    var find = await db('project').find()
+    expect(find.length).toBe(1)
+    expect(find[0]._id).toBeUndefined()
+    expect(find[0].id).toBe(create.id)
+
+    var base = await db.base.collection('project').find().toArray()
+    expect(base.length).toBe(1)
+    expect(base[0]._id).toBe(create.id)
+    expect(base[0].id).toBeUndefined()
+  })
+
   // alternative query
   it('no id string match, should return new document', async () => {
     await db('project').create({ id: '1' })
