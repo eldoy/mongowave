@@ -313,11 +313,7 @@ module.exports = async function (config = {}) {
 
       if (!Object.keys(operation).length) return { n: 0 }
       const { update } = config.timestamps
-      if (
-        update &&
-        operation.$set &&
-        typeof operation.$set[update] == 'undefined'
-      ) {
+      if (update && operation.$set) {
         operation.$set[update] = new Date()
       }
       const result = await collection.updateMany(query, operation, options)

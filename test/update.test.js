@@ -119,6 +119,24 @@ describe('Update', () => {
     expect(base[0].id).toBeUndefined()
   })
 
+  it('should change updated_at', async () => {
+    var DATE = new Date()
+    var values = { id: '1' }
+
+    await db('project').create(values)
+    await db('project').update(values, { updated_at: DATE })
+
+    var find = await db('project').find()
+    expect(find.length).toBe(1)
+
+    var entry = find[0]
+    expect(typeof entry.created_at.getTime).toBe('function')
+    expect(typeof entry.updated_at.getTime).toBe('function')
+    expect(entry.created_at.getTime()).toBeLessThan(entry.updated_at.getTime())
+    expect(entry.updated_at.getTime()).not.toEqual(DATE.getTime())
+    expect(entry.updated_at.getTime()).toBeGreaterThan(DATE.getTime())
+  })
+
   // alternative query
   it('no id string match, should return an empty array', async () => {
     await db('project').create({ id: '1' })
