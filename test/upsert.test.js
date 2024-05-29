@@ -84,23 +84,31 @@ describe('Upsert', () => {
 
   it('should not save id in database', async () => {
     var create = await db('project').upsert()
-    await db('project').upsert({ id: create.id }, { name: 'Test' })
+    await db('project').upsert(
+      { id: create.id },
+      { name: 'test', _id: '1', id: '1' }
+    )
 
     var find = await db('project').find()
     expect(find.length).toBe(1)
     expect(find[0]._id).toBeUndefined()
     expect(find[0].id).toBe(create.id)
+    expect(find[0].name).toBe('test')
 
     var base = await db.base.collection('project').find().toArray()
     expect(base.length).toBe(1)
     expect(base[0]._id).toBe(create.id)
     expect(base[0].id).toBeUndefined()
+    expect(base[0].name).toBe('test')
   })
 
   it('should change updated_at', async () => {
     var DATE = new Date()
     var create = await db('project').upsert()
-    await db('project').upsert({ id: create.id }, { updated_at: DATE })
+    await db('project').upsert(
+      { id: create.id },
+      { updated_at: DATE, name: 'test' }
+    )
 
     var find = await db('project').find()
     expect(find.length).toBe(1)

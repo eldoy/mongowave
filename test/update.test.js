@@ -105,18 +105,24 @@ describe('Update', () => {
     expect(create._id).toBeUndefined()
     expect(create.id).toBe('1')
 
-    var update = await db('project').update(values, { name: 'Test' })
+    var update = await db('project').update(values, {
+      name: 'test',
+      _id: '1',
+      id: '1'
+    })
     expect(update.n).toBe(1)
 
     var find = await db('project').find()
     expect(find.length).toBe(1)
     expect(find[0]._id).toBeUndefined()
     expect(find[0].id).toBe('1')
+    expect(find[0].name).toBe('test')
 
     var base = await db.base.collection('project').find().toArray()
     expect(base.length).toBe(1)
     expect(base[0]._id).toBe('1')
     expect(base[0].id).toBeUndefined()
+    expect(base[0].name).toBe('test')
   })
 
   it('should change updated_at', async () => {
@@ -124,7 +130,7 @@ describe('Update', () => {
     var values = { id: '1' }
 
     await db('project').create(values)
-    await db('project').update(values, { updated_at: DATE })
+    await db('project').update(values, { updated_at: DATE, name: 'test' })
 
     var find = await db('project').find()
     expect(find.length).toBe(1)

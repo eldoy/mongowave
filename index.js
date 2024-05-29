@@ -51,6 +51,13 @@ function parseQuery(obj) {
   return obj
 }
 
+// Parse update values
+function parseValues(obj, simpleid) {
+  if (obj._id) delete obj._id
+  if (obj.updated_at) delete obj.updated_at
+  if (simpleid && obj.id) delete obj.id
+}
+
 // Recursively remove null and undefined
 function denullify(obj) {
   Object.keys(obj).forEach((key) => {
@@ -299,6 +306,7 @@ module.exports = async function (config = {}) {
     async function update(query = {}, values = {}, options = {}) {
       query = parseQuery(query)
       if (config.simpleid) flipid(query)
+      parseValues(values, config.simpleid)
 
       const operation = {}
       for (const key in values) {
