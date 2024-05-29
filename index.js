@@ -99,6 +99,9 @@ module.exports = async function (config = {}) {
   if (config.timestamps === true) {
     config.timestamps = DEFAULT_TIMESTAMPS
   }
+  if (!!process.env.MONGOWAVE_OPTIONS_QUIET && !config.quiet) {
+    config.quiet = true
+  }
   const client = new MongoClient(config.url, config.connection)
   await client.connect()
 
