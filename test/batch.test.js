@@ -9,6 +9,7 @@ for (let i = 0; i < n; i++) {
 
 describe('Batch', () => {
   beforeAll(async () => {
+    process.env.MONGOWAVE_OPTIONS_QUIET = true
     db = await connection()
     await db.drop()
     await db('project').create(docs)

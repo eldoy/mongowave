@@ -106,9 +106,8 @@ module.exports = async function (config = {}) {
   if (config.timestamps === true) {
     config.timestamps = DEFAULT_TIMESTAMPS
   }
-  if (!!process.env.MONGOWAVE_OPTIONS_QUIET && !config.quiet) {
-    config.quiet = true
-  }
+  config.quiet = !!process.env.MONGOWAVE_OPTIONS_QUIET || !!config.quiet
+
   const client = new MongoClient(config.url, config.connection)
   await client.connect()
 
@@ -341,6 +340,16 @@ module.exports = async function (config = {}) {
       return await create(values)
     }
 
+    // Replace
+    async function replace(query = {}, values = {}, options = {}) {
+      query = parseQuery(query)
+      if (config.simpleid) flipid(query)
+      parseValues(values, config.simpleid)
+
+      const result = await collection.replaceOne(query, values, options)
+      return { n: result.modifiedCount }
+    }
+
     // Delete
     async function del(query = {}, options = {}) {
       query = parseQuery(query)
@@ -414,6 +423,7 @@ module.exports = async function (config = {}) {
       create,
       update,
       upsert,
+      replace,
       delete: del,
       set,
       analyze
