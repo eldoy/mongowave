@@ -439,7 +439,7 @@ module.exports = async function (config = {}) {
     return base.listCollections().toArray()
   }
 
-  // Add indexes. Experimental.
+  // Add indexes
   db.index = async function (indexes = {}) {
     for (const collection in indexes) {
       const index = indexes[collection]
@@ -449,7 +449,7 @@ module.exports = async function (config = {}) {
           console.info('Adding index to', collection)
           console.info(JSON.stringify(fields, null, 2))
           console.info(JSON.stringify(options || {}, null, 2))
-          await db.base.collection(collection).createIndex(fields, options)
+          await base.collection(collection).createIndex(fields, options)
         } catch (e) {
           console.info(e.message)
         }
@@ -457,7 +457,7 @@ module.exports = async function (config = {}) {
     }
   }
 
-  // Drop indexes. Experimental.
+  // Drop indexes
   db.deindex = async function (collections) {
     if (!collections) {
       collections = (await db.collections()).map((c) => c.name)
