@@ -12,9 +12,9 @@
     "cuid": "^2.1.8",
     "extras": "^0.12.2",
     "lodash": "^4.17.21",
-    "mongodb": "^5.2.0"
+    "mongodb": "^6.7.0"
   },
   "devDependencies": {
-    "jest": "^29.5.0"
+    "jest": "^29.7.0"
   }
 }

@@ -3,8 +3,6 @@ const cuid = require('cuid')
 const lodash = require('lodash')
 const extras = require('extras')
 
-process.noDeprecation = true
-
 const DEFAULT_CONFIG = {
   url: 'mongodb://localhost:27017',
   name: 'wdb',
@@ -12,11 +10,7 @@ const DEFAULT_CONFIG = {
   id: cuid,
   simpleid: true,
   batchsize: 1000,
-  quiet: false,
-  connection: {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  }
+  quiet: false
 }
 
 const DEFAULT_TIMESTAMPS = { create: 'created_at', update: 'updated_at' }
