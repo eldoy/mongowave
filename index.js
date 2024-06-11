@@ -350,6 +350,16 @@ module.exports = async function (config = {}) {
       return { n: result.modifiedCount }
     }
 
+    // Repsert
+    async function repsert(query = {}, values = {}) {
+      var existing = await get(query)
+      if (existing) {
+        await replace(existing.id, values)
+        return await get(existing.id)
+      }
+      return await create(values)
+    }
+
     // Delete
     async function del(query = {}, options = {}) {
       query = parseQuery(query)
@@ -424,6 +434,7 @@ module.exports = async function (config = {}) {
       update,
       upsert,
       replace,
+      repsert,
       delete: del,
       set,
       analyze
