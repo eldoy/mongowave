@@ -226,13 +226,15 @@ module.exports = async function (config = {}) {
       const [query, options, callback] = pull(args)
       if (config.simpleid) flipid(query)
       parseOptions(options)
+      var callbacks = []
       await getCursor(query, options).forEach(async function (result) {
         denullify(result)
         if (config.simpleid) flipid(result, true)
         if (typeof callback == 'function') {
-          await callback(result)
+          callbacks.push(callback(result))
         }
       })
+      await Promise.all(callbacks)
     }
 
     // Find only one
