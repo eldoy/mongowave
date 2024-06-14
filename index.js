@@ -47,9 +47,11 @@ function parseQuery(obj) {
 
 // Parse update values
 function parseValues(obj, simpleid) {
+  obj = lodash.cloneDeep(obj)
   if (obj._id) delete obj._id
   if (obj.updated_at) delete obj.updated_at
   if (simpleid && obj.id) delete obj.id
+  return obj
 }
 
 // Recursively remove null and undefined
@@ -301,7 +303,7 @@ module.exports = async function (config = {}) {
     async function update(query = {}, values = {}, options = {}) {
       query = parseQuery(query)
       if (config.simpleid) flipid(query)
-      parseValues(values, config.simpleid)
+      values = parseValues(values, config.simpleid)
 
       const operation = {}
       for (const key in values) {
@@ -340,7 +342,7 @@ module.exports = async function (config = {}) {
     async function replace(query = {}, values = {}, options = {}) {
       query = parseQuery(query)
       if (config.simpleid) flipid(query)
-      parseValues(values, config.simpleid)
+      values = parseValues(values, config.simpleid)
 
       const result = await collection.replaceOne(query, values, options)
       return { n: result.modifiedCount }

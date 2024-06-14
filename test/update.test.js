@@ -185,4 +185,10 @@ describe('Update', () => {
     expect(find[1].id).toBe('2')
     expect(find[1].name).toBe('update')
   })
+
+  it.only('should not mutate passing object', async () => {
+    var project = await db('project').create({ id: '1' })
+    await db('project').update({ id: project.id }, project)
+    expect(project.id).toBe('1')
+  })
 })
