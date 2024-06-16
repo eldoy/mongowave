@@ -188,8 +188,10 @@ module.exports = async function (config = {}) {
 
       const size = options.size || config.batchsize
       const quiet = options.quiet || config.quiet
+      const sync = options.sync || config.sync
       delete options.size
       delete options.quiet
+      delete options.sync
 
       // Fetch ids
       const all = await find(query, {
@@ -218,7 +220,11 @@ module.exports = async function (config = {}) {
           if (!quiet) {
             extras.print(`${percent}% ${total} ${page}/${pages}`)
           }
-          await Promise.all(result.map(callback))
+          if (sync) {
+            await Promise.all(result.map(callback))
+          } else {
+            await callback(result)
+          }
         }
       }
     }

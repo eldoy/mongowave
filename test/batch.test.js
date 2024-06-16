@@ -17,8 +17,8 @@ describe('Batch', () => {
 
   it('should batch find documents', async () => {
     let list = []
-    await db('project').batch(async function (project) {
-      list = list.concat(project)
+    await db('project').batch(async function (projects) {
+      list = list.concat(projects)
     })
     expect(list.length).toBe(docs.length)
     for (let i = 0; i < n; i++) {
@@ -29,8 +29,8 @@ describe('Batch', () => {
 
   it('should batch find documents with size option', async () => {
     let list = []
-    await db('project').batch({}, { size: 10 }, async function (project) {
-      list = list.concat(project)
+    await db('project').batch({}, { size: 10 }, async function (projects) {
+      list = list.concat(projects)
     })
     expect(list.length).toBe(docs.length)
     for (let i = 0; i < n; i++) {
@@ -46,5 +46,14 @@ describe('Batch', () => {
       list = list.concat(projects)
     })
     expect(list.length).toBe(limit)
+  })
+
+  it('should batch find documents synced', async () => {
+    let list = [],
+      sync = true
+    await db('project').batch({}, { sync }, async function (project) {
+      list = list.concat(project)
+    })
+    expect(list.length).toEqual(docs.length)
   })
 })
