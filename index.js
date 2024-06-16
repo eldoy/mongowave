@@ -268,15 +268,8 @@ module.exports = async function (config = {}) {
 
     // Find ids
     async function ids(query = {}) {
-      var ids = []
-      await batch(
-        query,
-        { quiet: true, fields: { id: 1 } },
-        async function (doc) {
-          ids.push(doc.id)
-        }
-      )
-      return ids
+      var result = await find(query, { fields: { id: 1 } })
+      return result.map((x) => x.id)
     }
 
     // Count
