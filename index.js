@@ -266,6 +266,12 @@ module.exports = async function (config = {}) {
       return get(query, { sort: { updated_at: -1 } })
     }
 
+    // Find ids
+    async function ids(query = {}) {
+      var result = await find(query, { fields: { id: 1 } })
+      return result.map((x) => x.id)
+    }
+
     // Count
     async function count(query = {}, options = {}) {
       query = parseQuery(query)
@@ -427,6 +433,7 @@ module.exports = async function (config = {}) {
       first,
       last,
       changed,
+      ids,
       count,
       create,
       update,
