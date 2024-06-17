@@ -304,6 +304,7 @@ module.exports = async function (config = {}) {
           val[update] = date
         }
       }
+      parseOptions(options)
       await collection.insertMany(values, options)
       if (config.simpleid) flipid(values, true)
       return wasArray ? values : values[0]
@@ -314,6 +315,7 @@ module.exports = async function (config = {}) {
       query = parseQuery(query)
       if (config.simpleid) flipid(query)
       values = parseValues(values, config.simpleid)
+      parseOptions(options)
 
       const operation = {}
       for (const key in values) {
@@ -355,6 +357,7 @@ module.exports = async function (config = {}) {
       if (config.simpleid) flipid(query)
       values = parseValues(values, config.simpleid)
       denullify(values)
+      parseOptions(options)
       const result = await collection.replaceOne(query, values, options)
       return { n: result.modifiedCount }
     }
@@ -373,6 +376,7 @@ module.exports = async function (config = {}) {
     async function del(query = {}, options = {}) {
       query = parseQuery(query)
       if (config.simpleid) flipid(query)
+      parseOptions(options)
       const result = await collection.deleteMany(query, options)
       return { n: result.deletedCount }
     }
