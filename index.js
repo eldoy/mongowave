@@ -42,7 +42,11 @@ function parseQuery(obj) {
   if (Array.isArray(obj)) {
     return { id: { $in: obj } }
   }
-  return obj
+  return Object.fromEntries(
+    Object.entries(obj)
+      .map(([k, v]) => [k, v === null ? { $type: 10 } : v])
+      .filter(([, v]) => v !== undefined)
+  )
 }
 
 // Parse update values
@@ -54,12 +58,12 @@ function parseValues(obj, simpleid) {
   return obj
 }
 
-// Recursively remove null and undefined
+// Recursively remove undefined
 function denullify(obj) {
   Object.keys(obj).forEach((key) => {
     if (obj[key] && typeof obj[key] === 'object') {
       denullify(obj[key])
-    } else if (obj[key] == null) {
+    } else if (obj[key] === undefined) {
       delete obj[key]
     }
   })
@@ -247,13 +251,7 @@ module.exports = async function (config = {}) {
 
     // Find only one
     async function get(query = {}, options = {}) {
-      query = parseQuery(query)
-      if (config.simpleid) flipid(query)
-      parseOptions(options)
-      options.limit = 1
-      const result = await getCursor(query, options).toArray()
-      denullify(result)
-      if (config.simpleid) flipid(result, true)
+      var result = await find(query, { ...options, limit: 1 })
       return result[0] || null
     }
 
@@ -322,7 +320,7 @@ module.exports = async function (config = {}) {
         if (DB_FIELD_UPDATE_OPERATORS.includes(key)) {
           operation[key] = values[key]
           delete values[key]
-        } else if (values[key] == null) {
+        } else if (values[key] === undefined) {
           if (!operation.$unset) operation.$unset = {}
           operation.$unset[key] = ''
         } else {
@@ -333,7 +331,8 @@ module.exports = async function (config = {}) {
 
       if (!Object.keys(operation).length) return { n: 0 }
       const { update } = config.timestamps
-      if (update && operation.$set) {
+      if (update && (operation.$set || operation.$unset)) {
+        if (!operation.$set) operation.$set = {}
         operation.$set[update] = new Date()
       }
       const result = await collection.updateMany(query, operation, options)
@@ -355,7 +354,7 @@ module.exports = async function (config = {}) {
       query = parseQuery(query)
       if (config.simpleid) flipid(query)
       values = parseValues(values, config.simpleid)
-
+      denullify(values)
       const result = await collection.replaceOne(query, values, options)
       return { n: result.modifiedCount }
     }

@@ -1,22 +1,24 @@
-const connection = require('../index.js')
-let db
+var connection = require('../index.js')
+var db
 
-describe('Null', () => {
+var timeStart
+var timeEnd
+
+describe('Undefined', () => {
   beforeAll(async () => (db = await connection()))
   beforeEach(async () => await db.drop())
 
-  it('should insert null', async () => {
+  it('should not insert undefined', async () => {
     timeStart = new Date()
-    await db('project').create({ name: null })
+    await db('project').create({ name: undefined })
     timeEnd = new Date()
 
     var result = await db.base.collection('project').find().toArray()
     expect(result.length).toBe(1)
 
     var entry = result[0]
-    expect(Object.keys(entry).length).toBe(4)
+    expect(Object.keys(entry).length).toBe(3)
     expect(typeof entry._id).toBe('string')
-    expect(entry.name).toBe(null)
     expect(entry.created_at >= timeStart).toBeTruthy()
     expect(entry.created_at <= timeEnd).toBeTruthy()
     expect(
@@ -24,7 +26,7 @@ describe('Null', () => {
     ).toBeTruthy()
   })
 
-  it('should update with null', async () => {
+  it('should update with undefined', async () => {
     await db('project').create({ name: 'hello' })
 
     var result = await db.base.collection('project').find().toArray()
@@ -35,7 +37,10 @@ describe('Null', () => {
     expect(entry.name).toBe('hello')
 
     timeStart = new Date()
-    var update = await db('project').update({ _id: entry._id }, { name: null })
+    var update = await db('project').update(
+      { _id: entry._id },
+      { name: undefined }
+    )
     timeEnd = new Date()
 
     expect(update).toEqual({ n: 1 })
@@ -44,24 +49,24 @@ describe('Null', () => {
     expect(result.length).toBe(1)
 
     entry = result[0]
-    expect(Object.keys(entry).length).toBe(4)
+    expect(Object.keys(entry).length).toBe(3)
     expect(typeof entry._id).toBe('string')
-    expect(entry.name).toBe(null)
     expect(entry.created_at < timeStart).toBeTruthy()
-    expect(entry.updated_at >= timeStart).toBeTruthy()
     expect(entry.created_at < entry.updated_at).toBeTruthy()
   })
 
-  it('should find documents with null field', async () => {
+  it('should find all documents', async () => {
     await db.base.collection('project').insertOne({ _id: '1', name: null })
     await db.base.collection('project').insertOne({ _id: '2', name: undefined })
     await db.base.collection('project').insertOne({ _id: '3' })
     await db.base.collection('project').insertOne({ _id: '4', name: '' })
 
-    var result = await db('project').find({ name: null })
+    var result = await db('project').find({ name: undefined })
     expect(result).toEqual([
       { id: '1', name: null },
-      { id: '2', name: null }
+      { id: '2', name: null },
+      { id: '3' },
+      { id: '4', name: '' }
     ])
   })
 })

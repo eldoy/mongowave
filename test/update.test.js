@@ -24,7 +24,7 @@ describe('Update', () => {
     expect(first.name).toEqual('hello')
     update = await db('project').update(
       { name: 'hello' },
-      { name: null, bye: 'bye' }
+      { name: undefined, bye: 'bye' }
     )
     expect(update.n).toBe(1)
     first = await db('project').get()
@@ -52,7 +52,7 @@ describe('Update', () => {
     let first = await db('project').get()
     expect(first.name).toEqual('bye')
 
-    update = await db('project').update({ name: 'bye' }, { name: null })
+    update = await db('project').update({ name: 'bye' }, { name: undefined })
     expect(update.n).toBe(1)
     first = await db('project').get()
     expect(first.name).toBeUndefined()
@@ -186,7 +186,7 @@ describe('Update', () => {
     expect(find[1].name).toBe('update')
   })
 
-  it.only('should not mutate passing object', async () => {
+  it('should not mutate passing object', async () => {
     var project = await db('project').create({ id: '1' })
     await db('project').update({ id: project.id }, project)
     expect(project.id).toBe('1')

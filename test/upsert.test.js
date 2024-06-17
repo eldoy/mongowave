@@ -40,7 +40,7 @@ describe('Upsert', () => {
     var first = await db('project').get()
     expect(first.name).toEqual('bye')
 
-    upsert = await db('project').upsert({ name: 'bye' }, { name: null })
+    upsert = await db('project').upsert({ name: 'bye' }, { name: undefined })
     expect(upsert).not.toBe(null)
     expect(upsert.name).toBeUndefined()
     first = await db('project').get()
