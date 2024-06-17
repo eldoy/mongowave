@@ -1,11 +1,9 @@
+var { sleep } = require('extras')
+
 const connection = require('../index.js')
 let db
 
 const docs = [{ name: 'a' }, { name: 'b' }, { name: 'c' }]
-
-async function wait() {
-  return new Promise((resolve) => setTimeout(resolve, 0))
-}
 
 describe('Each', () => {
   beforeAll(async () => (db = await connection()))
@@ -26,7 +24,7 @@ describe('Each', () => {
     await db('project').create(docs)
     let list = []
     await db('project').each(async function (project) {
-      await wait()
+      await sleep(0.2)
       list.push(project)
     })
     expect(list.length).not.toBe(0)
