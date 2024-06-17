@@ -35,6 +35,27 @@ describe('Find', () => {
     expect(find[1].position).toBe(1)
   })
 
+  it('should work with date sorting', async () => {
+    var dateBefore = new Date()
+    dateBefore.setDate(dateBefore.getDate() - 1)
+    var dateNow = new Date()
+
+    await db('project').create([
+      { id: '1', date: undefined },
+      { id: '2', date: null },
+      { id: '3', date: dateBefore },
+      { id: '4', date: dateNow }
+    ])
+
+    var result = await db('project').find({}, { sort: { date: -1 } })
+    expect(result.length).toBe(4)
+    expect(result.map(({ id }) => id)).toEqual(['4', '3', '1', '2'])
+
+    result = await db('project').find({}, { sort: { date: 1 } })
+    expect(result.length).toBe(4)
+    expect(result.map(({ id }) => id)).toEqual(['1', '2', '3', '4'])
+  })
+
   it('should work with limit', async () => {
     await db('project').create()
     await db('project').create()
