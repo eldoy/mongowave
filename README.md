@@ -42,6 +42,9 @@ const db = await connection({
   // The default size for batch queries
   batchsize: 20,
 
+  // Suppress logging
+  quiet: false,
+
   // Connection options for Mongodb Client
   connection: {
     useNewUrlParser: true,
@@ -133,6 +136,30 @@ Count documents:
 // Returns the count of the matching query
 // Takes 2 arguments: query, options
 const result = await db('project').count({ name: 'bye' })
+```
+
+Null values:
+```js
+// Creates doc with null name field
+const result = await db('project').create({ name: null })
+
+// Returns all docs with null name field
+const result = await db('project').find({ name: null })
+
+// Sets all name fields to null
+const result = await db('project').update({}, { name: null })
+```
+
+Undefined values:
+```js
+// Creates doc without name field
+const result = await db('project').create({ name: undefined })
+
+// Returns all docs without name field
+const result = await db('project').find({ name: undefined })
+
+// Unsets all name fields
+const result = await db('project').update({}, { name: undefined })
 ```
 
 Use the mongodb client base directly:
