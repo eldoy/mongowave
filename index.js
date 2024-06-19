@@ -232,7 +232,13 @@ module.exports = async function (config = {}) {
           if (sync) {
             await Promise.all(result.map(callback))
           } else {
-            await callback(result)
+            await callback(result, {
+              total,
+              page,
+              pages,
+              count,
+              percent
+            })
           }
         }
       }
