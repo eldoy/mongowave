@@ -43,9 +43,14 @@ function parseQuery(obj) {
     return { id: { $in: obj } }
   }
   return Object.fromEntries(
-    Object.entries(obj)
-      .map(([k, v]) => [k, v === null ? { $type: 10 } : v])
-      .filter(([, v]) => v !== undefined)
+    Object.entries(obj).map(([k, v]) => {
+      if (v === null) {
+        return [k, { $type: 10 }]
+      } else if (v === undefined) {
+        return [k, { $exists: false }]
+      }
+      return [k, v]
+    })
   )
 }
 

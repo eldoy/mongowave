@@ -55,18 +55,13 @@ describe('Undefined', () => {
     expect(entry.created_at < entry.updated_at).toBeTruthy()
   })
 
-  it('should find all documents', async () => {
+  it('should find documents with undefined field', async () => {
     await db.base.collection('project').insertOne({ _id: '1', name: null })
     await db.base.collection('project').insertOne({ _id: '2', name: undefined })
     await db.base.collection('project').insertOne({ _id: '3' })
     await db.base.collection('project').insertOne({ _id: '4', name: '' })
 
     var result = await db('project').find({ name: undefined })
-    expect(result).toEqual([
-      { id: '1', name: null },
-      { id: '2', name: null },
-      { id: '3' },
-      { id: '4', name: '' }
-    ])
+    expect(result).toEqual([{ id: '3' }])
   })
 })
