@@ -403,6 +403,30 @@ module.exports = async function (config = {}) {
       }
     }
 
+    // Experimental duplicate checker
+    async function dups(opt = {}) {
+      if (!opt.fields) opt.fields = []
+
+      var d = new Set()
+
+      async function check(doc) {
+        var query = {}
+        for (var field of opt.fields) {
+          query[field] = doc[field]
+        }
+        var list = (await ids(query)).sort()
+        if (list.length > 1) {
+          d.add(list.join('|'))
+        }
+      }
+
+      await batch(async function (docs) {
+        await Promise.all(docs.map(check))
+      })
+
+      return [...d].map((x) => x.split('|'))
+    }
+
     // Experimental analyzer for queries
     async function analyze(query = {}, options = {}) {
       const result = await collection.find(query, options).explain()
@@ -462,6 +486,7 @@ module.exports = async function (config = {}) {
       repsert,
       delete: del,
       set,
+      dups,
       analyze
     }
   }
