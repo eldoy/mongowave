@@ -304,7 +304,7 @@ module.exports = async function (config = {}) {
       if (config.simpleid) flipid(values)
       for (const val of values) {
         if (config.id) {
-          val._id = String(val._id || val.id || config.id())
+          val._id = val._id || val.id || config.id()
         }
         const { create, update } = config.timestamps
         const date = new Date()

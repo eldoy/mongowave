@@ -58,4 +58,11 @@ describe('Create', () => {
     expect(base[0]._id).toBe('1')
     expect(base[0].id).toBeUndefined()
   })
+
+  it('should allow number as id', async () => {
+    await db('project').create({ id: 3, name: 'three' })
+    var ids = await db('project').ids({ name: 'three' })
+    expect(ids.length).toEqual(1)
+    expect(ids[0]).toBe(3)
+  })
 })
