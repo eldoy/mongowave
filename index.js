@@ -9,6 +9,7 @@ const DEFAULT_CONFIG = {
   timestamps: true,
   id: cuid,
   simpleid: true,
+  stringid: true,
   batchsize: 1000,
   quiet: false
 }
@@ -305,6 +306,7 @@ module.exports = async function (config = {}) {
       for (const val of values) {
         if (config.id) {
           val._id = val._id || val.id || config.id()
+          if (config.stringid) val._id = String(val._id)
         }
         const { create, update } = config.timestamps
         const date = new Date()

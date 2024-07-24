@@ -49,7 +49,10 @@ const db = await connection({
   connection: {
     useNewUrlParser: true,
     useUnifiedTopology: true
-  }
+  },
+
+  // Always convert id to string
+  stringid: true
 })
 ```
 
