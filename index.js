@@ -430,19 +430,21 @@ module.exports = async function (config = {}) {
     }
 
     // Experimental analyzer for queries
-    async function analyze(query = {}, options = {}) {
-      const result = await collection.find(query, options).explain()
-      console.info(JSON.stringify(result, null, 2))
+    async function analyze(query = {}, options = {}, silent) {
+      var result = await collection.find(query, options).explain()
+      !silent && console.info(JSON.stringify(result, null, 2))
 
       const { queryPlanner, executionStats } = result
-      console.info(
-        `Returned ${executionStats.nReturned} documents in ${
-          executionStats.executionTimeMillis / 1000
-        }s.`
-      )
+      !silent &&
+        console.info(
+          `Returned ${executionStats.nReturned} documents in ${
+            executionStats.executionTimeMillis / 1000
+          }s.`
+        )
 
       // totalDocsExamined should be 0 if indexes cover the search
-      console.info(`Total docs examined: ${executionStats.totalDocsExamined}`)
+      !silent &&
+        console.info(`Total docs examined: ${executionStats.totalDocsExamined}`)
 
       function trace(plan) {
         const stages = [plan.stage]
@@ -455,18 +457,20 @@ module.exports = async function (config = {}) {
         return stages
       }
       const stages = trace(queryPlanner.winningPlan)
-      console.info({ stages })
+      !silent && console.info({ stages })
 
       const BADCODES = ['FETCH', 'COLLSCAN']
       const failed = stages.find((x) => BADCODES.includes(x))
 
       if (failed) {
-        console.info(`Index missing for query:`)
-        console.info(JSON.stringify({ model, query, options }, null, 2))
-        return result
+        !silent && console.info(`Index missing for query:`)
+        !silent &&
+          console.info(JSON.stringify({ model, query, options }, null, 2))
       } else {
-        console.info('Index for this query is good!')
+        !silent && console.info('Index for this query is good!')
       }
+
+      return { model, query, options, result, stages, failed }
     }
 
     return {
